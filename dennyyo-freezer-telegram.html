@@ -53,7 +53,13 @@ h1,h2,h3,h4{margin:0;text-wrap:balance}
 
 /* header */
 .eyebrow{font:500 11px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
-.hero{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;padding-block:8px 20px}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:16px;padding-block:8px 20px}
+.ava{position:relative;width:44px;height:44px;border-radius:50%;border:2px solid var(--line);background:var(--accent-soft);color:var(--accent);padding:0;overflow:hidden;display:grid;place-items:center;font:700 16px var(--f-display);flex:none}
+.ava img{width:100%;height:100%;object-fit:cover;display:block}
+.ava svg{width:22px;height:22px}
+.ava[aria-current="page"]{border-color:var(--accent)}
+.ava-wrap{position:relative}
+.ava-dot{position:absolute;top:0;right:0;width:12px;height:12px;border-radius:50%;background:var(--air);border:2px solid var(--ground)}
 .hero h1{font:700 clamp(28px,6vw,44px)/1.05 var(--f-display);letter-spacing:-.02em;margin-top:10px}
 .hero p{margin:8px 0 0;color:var(--ink-2);max-width:52ch}
 .sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;width:100%}
@@ -230,10 +236,11 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meal System · v1.3</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v1.4</div>
       <h1><span id="bagsTitle">14 пакетов</span> в морозилке</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
+    <div class="ava-wrap"><button class="ava" id="avaBtn" aria-label="Профиль и цель"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button><span class="ava-dot" id="avaDot" hidden></span></div>
   </header>
   <div class="sum" id="sum"></div>
 
@@ -242,7 +249,6 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
     <button role="tab" id="t-shop" aria-controls="shop" aria-selected="false">Закупка <small id="shopBadge"></small></button>
     <button role="tab" id="t-prep" aria-controls="prep" aria-selected="false">Заготовка</button>
     <button role="tab" id="t-prices" aria-controls="prices" aria-selected="false">Цены</button>
-    <button role="tab" id="t-profile" aria-controls="profile" aria-selected="false">Профиль</button>
   </nav>
 
   <section role="tabpanel" id="menu" aria-labelledby="t-menu">
@@ -305,7 +311,8 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
     </div>
   </section>
 
-  <section role="tabpanel" id="profile" aria-labelledby="t-profile" hidden>
+  <section role="tabpanel" id="profile" aria-label="Профиль" hidden>
+    <h2 class="h2" id="profName">Профиль</h2>
     <p class="lead">По этим данным считаю дневную норму и сколько из неё должен закрывать один обед. Под эту цель подгоняю каждый пакет: белок добираю мясом или рыбой, калории гарниром. Овощи, маринад и финиш не меняются.</p>
     <div class="pcard">
       <div class="pgrid">
@@ -587,7 +594,9 @@ const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const pad = n => String(n).padStart(2,'0');
 
 /* ---------- Рендер: сводка ---------- */
+function renderDot(){const d=document.getElementById('avaDot');if(d)d.hidden=!!targets()}
 function renderSum(){
+  renderDot();
   const bags=totalBags();
   let cost=0,prot=0,kcal=0;
   M.forEach(m=>{const c=S.counts[m.id]||0; if(!c)return; const s=stats(m); cost+=s.cost*c; prot+=s.p*c; kcal+=s.k*c});
@@ -738,7 +747,8 @@ const TABS=['menu','shop','prep','prices','profile'];
 function show(t){
   if(!TABS.includes(t))t='menu';
   S.tab=t;
-  TABS.forEach(x=>{document.getElementById(x).hidden=x!==t;document.getElementById('t-'+x).setAttribute('aria-selected',x===t)});
+  TABS.forEach(x=>{document.getElementById(x).hidden=x!==t;const tb=document.getElementById('t-'+x);if(tb)tb.setAttribute('aria-selected',x===t)});
+  document.getElementById('avaBtn').setAttribute('aria-current',t==='profile'?'page':'false');
   if(t==='menu')renderMenu(); if(t==='shop')renderShop(); if(t==='prices')renderPrices(); if(t==='profile')renderProfile();
   save();
 }
@@ -748,6 +758,7 @@ function renderShopBadge(){const n=needs();let t=0,d=0;Object.keys(n).forEach(id
 /* ---------- События ---------- */
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[role=tab]');if(b){show(b.id.slice(2));window.scrollTo({top:0})}});
 document.getElementById('menu').addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){show(b.dataset.go);window.scrollTo({top:0})}});
+document.getElementById('avaBtn').addEventListener('click',()=>{show(S.tab==='profile'?'menu':'profile');window.scrollTo({top:0})});
 function profChanged(){renderProfOut();renderSum();save()}
 ['pSex','pAct','pGoal','pShare'].forEach((id,i)=>document.getElementById(id).addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return; const k=['sex','act','goal','share'][i];
@@ -819,6 +830,13 @@ function initTelegram(){
   document.addEventListener('click',e=>{if(e.target.closest('.stepper button,[role=tab],.homebtn,#filters button,.seg button'))hap()});
   document.addEventListener('change',e=>{if(e.target.matches('input[type=checkbox]'))hap()});
   theme(); tg.onEvent('themeChanged',theme);
+  const u=tg.initDataUnsafe&&tg.initDataUnsafe.user;
+  if(u){
+    const btn=document.getElementById('avaBtn'), init=((u.first_name||'')[0]||'')+((u.last_name||'')[0]||'');
+    if(init)btn.textContent=init.toUpperCase();
+    if(u.photo_url){const im=new Image();im.alt='';im.onload=()=>{btn.textContent='';btn.appendChild(im)};im.src=u.photo_url}
+    const nm=document.getElementById('profName'); if(nm&&u.first_name)nm.textContent=u.first_name+(u.last_name?' '+u.last_name:'');
+  }
   if(tg.isVersionAtLeast&&tg.isVersionAtLeast('6.9')&&tg.CloudStorage){
     tg.CloudStorage.getItems([KEY_P,KEY_S],(err,v)=>{
       if(err||!v)return;
