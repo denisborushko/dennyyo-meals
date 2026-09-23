@@ -68,7 +68,7 @@ h1,h2,h3,h4{margin:0;text-wrap:balance}
 .tabs button{flex:1 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 16px;font-weight:600;font-size:14px;color:var(--ink-2);white-space:nowrap}
 .tabs button[aria-selected="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
 .tabs small{font:500 11px var(--f-mono);opacity:.7;margin-left:6px}
-@media (max-width:520px){.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.tabs button{padding:9px 4px;font-size:13px}.tabs small{display:none}}
+@media (max-width:560px){.tabs{gap:5px;margin-inline:-16px;padding-inline:16px}.tabs button{flex:0 0 auto;padding:8px 13px;font-size:13px}.tabs small{display:none}}
 
 section[role="tabpanel"]{animation:fade .18s ease}
 @keyframes fade{from{opacity:.6}to{opacity:1}}
@@ -198,15 +198,41 @@ ol.steps li::marker{font-family:var(--f-mono);color:var(--ink-3);font-size:12px}
 .btn.danger{color:var(--air)}
 textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);padding:10px;font:12px/1.4 var(--f-mono);resize:vertical;margin:10px 0}
 .hint{font-size:13px;color:var(--ink-3)}
+/* profile */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px}
+.pf{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--ink-2);font-weight:500}
+.pf .field input{text-align:left;padding-left:12px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 12px;font-size:13.5px;font-weight:600;color:var(--ink-2);text-align:left;line-height:1.25}
+.seg button small{display:block;font-weight:400;font-size:11.5px;color:var(--ink-3)}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.ptitle{font:500 10.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:22px 0 10px}
+.targets{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.tcard.hl{border-color:var(--accent)}
+.tcard h4{font:600 13.5px var(--f-body);color:var(--ink-2);margin-bottom:6px}
+.tcard .big{font:500 26px/1.1 var(--f-mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tcard .big small{font-size:13px;color:var(--ink-3);margin-left:4px}
+.mac{display:flex;gap:14px;margin-top:8px;font:500 13px var(--f-mono);color:var(--ink-2)}
+.mac b{color:var(--ink);font-weight:500}
+.fit{display:grid;gap:10px;margin-top:4px}
+.fitrow{display:grid;grid-template-columns:70px 1fr 120px;gap:10px;align-items:center;font-size:13px}
+.fitrow .tr{height:8px;background:var(--surface-2);border-radius:99px;position:relative}
+.fitrow .tr i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--accent)}
+.fitrow .tr em{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);left:66.6%}
+.fitrow .v{text-align:right;font:500 12.5px var(--f-mono);color:var(--ink-2)}
+.banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+.chip.me{color:var(--accent)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:9px 16px;border-radius:10px;font-size:13.5px;font-weight:600;z-index:20}
 </style>
 
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meal System · v1.2</div>
+      <div class="eyebrow">Dennyyo · Freezer Meal System · v1.3</div>
       <h1><span id="bagsTitle">14 пакетов</span> в морозилке</h1>
-      <p>Обеды на массу, 83 → 90 кг. Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
+      <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
   </header>
   <div class="sum" id="sum"></div>
@@ -216,10 +242,12 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
     <button role="tab" id="t-shop" aria-controls="shop" aria-selected="false">Закупка <small id="shopBadge"></small></button>
     <button role="tab" id="t-prep" aria-controls="prep" aria-selected="false">Заготовка</button>
     <button role="tab" id="t-prices" aria-controls="prices" aria-selected="false">Цены</button>
+    <button role="tab" id="t-profile" aria-controls="profile" aria-selected="false">Профиль</button>
   </nav>
 
   <section role="tabpanel" id="menu" aria-labelledby="t-menu">
     <p class="lead">Плюсом и минусом выбираешь, сколько пакетов каждого блюда сделать. Закупка и себестоимость пересчитываются сами. КБЖУ считаются по граммовке: пакет, гарнир и то, что добавляешь на финише.</p>
+    <div id="menuBanner"></div>
     <div class="filters" id="filters">
       <button aria-pressed="true" data-f="all">Все</button>
       <button aria-pressed="false" data-f="air">Аэрогриль</button>
@@ -275,6 +303,39 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
       <div><b>Гарнир</b><p>Рис или булгур в микроволновку на 1,5–2 мин с ложкой воды под крышкой.</p></div>
       <div><b>Финиш</b><p>Йогурт, фета, зелень, лайм, кунжут, как написано в карточке.</p></div>
     </div>
+  </section>
+
+  <section role="tabpanel" id="profile" aria-labelledby="t-profile" hidden>
+    <p class="lead">По этим данным считаю дневную норму и сколько из неё должен закрывать один обед. Под эту цель подгоняю каждый пакет: белок добираю мясом или рыбой, калории гарниром. Овощи, маринад и финиш не меняются.</p>
+    <div class="pcard">
+      <div class="pgrid">
+        <div class="pf">Пол<div class="seg" id="pSex"><button data-v="m" aria-pressed="false">Мужской</button><button data-v="f" aria-pressed="false">Женский</button></div></div>
+        <label class="pf" for="pAge">Возраст<span class="field"><input id="pAge" inputmode="numeric" placeholder="30" data-prof="age"><span>лет</span></span></label>
+        <label class="pf" for="pH">Рост<span class="field"><input id="pH" inputmode="numeric" placeholder="180" data-prof="h"><span>см</span></span></label>
+        <label class="pf" for="pW">Вес<span class="field"><input id="pW" inputmode="decimal" placeholder="80" data-prof="w"><span>кг</span></span></label>
+      </div>
+      <div class="ptitle">Активность</div>
+      <div class="seg" id="pAct">
+        <button data-v="1.2">Сидячая<small>офис, без тренировок</small></button>
+        <button data-v="1.375">Лёгкая<small>1–3 тренировки в неделю</small></button>
+        <button data-v="1.55">Средняя<small>3–5 тренировок</small></button>
+        <button data-v="1.725">Высокая<small>6–7 тренировок или физ. работа</small></button>
+      </div>
+      <div class="ptitle">Цель</div>
+      <div class="seg" id="pGoal">
+        <button data-v="cut">Похудеть<small>дефицит ~18%, белок 2 г/кг</small></button>
+        <button data-v="keep">Держать вес<small>норма, белок 1,6 г/кг</small></button>
+        <button data-v="gain">Набрать массу<small>профицит ~12%, белок 1,8 г/кг</small></button>
+      </div>
+      <div class="ptitle">Какую часть дня закрывает один пакет</div>
+      <div class="seg" id="pShare">
+        <button data-v="30">30%<small>лёгкий обед</small></button>
+        <button data-v="35">35%<small>обычный обед</small></button>
+        <button data-v="40">40%<small>главный приём пищи</small></button>
+        <button data-v="50">50%<small>обед плюс перекус</small></button>
+      </div>
+    </div>
+    <div id="profOut"></div>
   </section>
 
   <section role="tabpanel" id="prices" aria-labelledby="t-prices" hidden>
@@ -429,20 +490,20 @@ const METHOD = {air:'Аэрогриль',pan:'Сковорода'};
 
 /* ---------- Состояние и хранение ---------- */
 const KEY_P='fms1_prices', KEY_S='fms1_state';
-let S = {prices:{},packs:{},counts:{},got:{},home:{},tab:'menu',filter:'all'};
+let S = {prices:{},packs:{},counts:{},got:{},home:{},tab:'menu',filter:'all',prof:{sex:null,age:null,h:null,w:null,act:1.55,goal:'gain',share:35}};
 M.forEach(m=>S.counts[m.id]=1);
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function applySaved(pr,st){
   if(pr){S.prices=pr.prices||{};S.packs=pr.packs||{}}
-  if(st){['counts','got','home'].forEach(k=>{if(st[k])S[k]=Object.assign(S[k],st[k])});if(st.tab)S.tab=st.tab;if(st.filter)S.filter=st.filter}
+  if(st){['counts','got','home','prof'].forEach(k=>{if(st[k])S[k]=Object.assign(S[k],st[k])});if(st.tab)S.tab=st.tab;if(st.filter)S.filter=st.filter}
 }
 applySaved(lsGet(KEY_P),lsGet(KEY_S));
 let saveT;
 function save(){
   clearTimeout(saveT);
   saveT=setTimeout(()=>{
-    const pr={prices:S.prices,packs:S.packs}, st={counts:S.counts,got:S.got,home:S.home,tab:S.tab,filter:S.filter};
+    const pr={prices:S.prices,packs:S.packs}, st={counts:S.counts,got:S.got,home:S.home,tab:S.tab,filter:S.filter,prof:S.prof};
     lsSet(KEY_P,pr);lsSet(KEY_S,st);
     const cs=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.CloudStorage;
     if(cs&&Telegram.WebApp.isVersionAtLeast&&Telegram.WebApp.isVersionAtLeast('6.9')){
@@ -456,7 +517,37 @@ const price = p => S.prices[p.id] ?? p.price;
 const pack  = p => S.packs[p.id]  ?? p.pack;
 const unit  = p => price(p)/pack(p);
 const isMine = p => S.prices[p.id]!=null;
-const groups = m => [...m.bag,...(m.sauce||[]),...(m.cook||[]),...m.side,...m.finish,...BASICS];
+const rawGroups = m => [...m.bag,...(m.sauce||[]),...(m.cook||[]),...m.side,...m.finish,...BASICS];
+const SCALE_SIDE = ['rice','bulgur','potato'];
+const macroOf = (id,a) => {const p=PM[id], q=p.u==='шт'?a:a/100; return [q*p.m[0],q*p.m[1],q*p.m[2],q*p.m[3]]};
+
+/* ---------- Профиль → норма КБЖУ ---------- */
+function targets(){
+  const pr=S.prof; if(!pr.sex||!(pr.age>0)||!(pr.h>0)||!(pr.w>0))return null;
+  const bmr=10*pr.w+6.25*pr.h-5*pr.age+(pr.sex==='m'?5:-161);
+  const tdee=bmr*pr.act;
+  const adj={cut:-0.18,keep:0,gain:0.12}[pr.goal];
+  let k=tdee*(1+adj); const floor=Math.max(bmr, pr.sex==='m'?1500:1200); let floored=false;
+  if(k<floor){k=floor;floored=true}
+  const pk={cut:2.0,keep:1.6,gain:1.8}[pr.goal], fk={cut:0.8,keep:0.9,gain:1.0}[pr.goal];
+  const P=pr.w*pk, F=pr.w*fk, C=Math.max(0,(k-P*4-F*9)/4), sh=pr.share/100;
+  return {bmr,tdee,floored,day:{k,p:P,f:F,c:C},meal:{k:k*sh,p:P*sh,f:F*sh,c:C*sh}};
+}
+function factors(m){
+  const t=targets(); if(!t)return {p:1,c:1};
+  let Pm=0,Km=0,Ks=0,Po=0,Ko=0;
+  rawGroups(m).forEach(([id,a])=>{const [k,p]=macroOf(id,a);
+    if(PM[id].cat==='meat'){Pm+=p;Km+=k} else if(SCALE_SIDE.includes(id)){Ks+=k;Po+=p} else {Po+=p;Ko+=k}});
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const fp=clamp((t.meal.p-Po)/Pm,0.9,1.6);
+  const fc=Ks?clamp((t.meal.k-Ko-Km*fp)/Ks,0.4,1.8):1;
+  return {p:fp,c:fc};
+}
+function scaled(m,list){
+  const f=factors(m);
+  return list.map(([id,a])=>PM[id].cat==='meat'?[id,Math.round(a*f.p/10)*10]:SCALE_SIDE.includes(id)?[id,Math.round(a*f.c/10)*10]:[id,a]);
+}
+const groups = m => scaled(m,rawGroups(m));
 const bucket = c => c==='meat'?'meat':c==='side'?'side':(c==='veg'||c==='herb')?'veg':'other';
 function stats(m){
   const r={cost:0,k:0,p:0,f:0,c:0,by:{meat:0,side:0,veg:0,other:0}};
@@ -502,20 +593,33 @@ function renderSum(){
   M.forEach(m=>{const c=S.counts[m.id]||0; if(!c)return; const s=stats(m); cost+=s.cost*c; prot+=s.p*c; kcal+=s.k*c});
   const n=needs(); let shop=0;
   Object.entries(n).forEach(([id,need])=>{if(!S.home[id])shop+=buyInfo(PM[id],need).cost});
+  const t=targets();
   const mine=P.filter(isMine).length;
   const est = mine<P.length ? '<div class="est">по примерным ценам</div>' : '';
   document.getElementById('bagsTitle').textContent = bags+' '+plural(bags,'пакет','пакета','пакетов');
   document.getElementById('sum').innerHTML=`
     <div><b>${bags? rub(cost/bags):'—'}</b><span>себестоимость обеда</span>${est}</div>
     <div><b>${rub(shop)}</b><span>закупка на партию</span>${est}</div>
-    <div><b>${bags? Math.round(kcal/bags):'—'}</b><span>ккал в обеде, в среднем</span></div>
-    <div><b>${bags? Math.round(prot/bags)+' г':'—'}</b><span>белка в обеде, в среднем</span></div>`;
+    <div><b>${bags? Math.round(kcal/bags):'—'}</b><span>ккал в обеде, в среднем</span>${t?`<div class="est">цель ${Math.round(t.meal.k)}</div>`:''}</div>
+    <div><b>${bags? Math.round(prot/bags)+' г':'—'}</b><span>белка в обеде, в среднем</span>${t?`<div class="est">цель ${Math.round(t.meal.p)} г</div>`:''}</div>`;
+  const G={cut:'Обеды на похудение',keep:'Обеды на поддержание',gain:'Обеды на набор массы'};
+  document.getElementById('heroSub').textContent=(t?G[S.prof.goal]+'. ':'')+'Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.';
 }
 function plural(n,a,b,c){const m10=n%10,m100=n%100;return m10===1&&m100!==11?a:m10>=2&&m10<=4&&(m100<10||m100>=20)?b:c}
 
 /* ---------- Рендер: меню ---------- */
 function li(list){return list.map(([id,a])=>`<li><span>${esc(PM[id].n)}</span><span>${amt(PM[id],a)}</span></li>`).join('')}
+function meTag(m){
+  const t=targets(); if(!t)return '';
+  const f=factors(m); const d=k=>k>1.04?'больше':k<0.96?'меньше':'как есть';
+  return `<div class="note">Под твою цель: мясо ${d(f.p)} (${Math.round(f.p*100)}%), гарнир ${d(f.c)} (${Math.round(f.c*100)}%)</div>`;
+}
+function renderBanner(){
+  const el=document.getElementById('menuBanner'); if(!el)return;
+  el.innerHTML = targets()? '' : `<div class="banner"><span>Заполни профиль, и я подгоню порции под твою цель.</span><button class="btn primary" data-go="profile">Открыть профиль</button></div>`;
+}
 function renderMenu(){
+  renderBanner();
   const f=S.filter;
   document.querySelectorAll('#filters button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===f));
   const list=M.filter(m=>f==='all'||m.method===f||m.prot===f);
@@ -525,13 +629,13 @@ function renderMenu(){
       <div class="tape"><span class="no">#${pad(m.id)}</span>${esc(m.en)}</div>
       <h3>${esc(m.ru)}</h3>
       <div class="meta"><span class="chip ${m.method}">${METHOD[m.method]}</span><span class="mono">${m.mode}</span>${m.alt?`<span class="mono" style="color:var(--ink-3)">${m.alt}</span>`:''}</div>
-      ${m.note?`<div class="note">${esc(m.note)}</div>`:''}
+      ${m.note?`<div class="note">${esc(m.note)}</div>`:''}${meTag(m)}
       <div class="nums"><span class="mono macros"><b>${Math.round(s.k)}</b> ккал · Б <b>${Math.round(s.p)}</b> · Ж ${Math.round(s.f)} · У ${Math.round(s.c)}</span><span class="cost">${rub(s.cost)}</span></div>
       <details class="how"><summary>Что в пакет и как готовить</summary>
         <div class="parts">
-          <div class="wide"><h4>В пакет</h4><ul>${li(m.bag)}<li><span>Соль, чёрный перец</span><span>по вкусу</span></li></ul></div>
+          <div class="wide"><h4>В пакет</h4><ul>${li(scaled(m,m.bag))}<li><span>Соль, чёрный перец</span><span>по вкусу</span></li></ul></div>
           ${m.sauce?`<div class="wide"><h4>Соус: отдельный пакетик</h4><ul>${li(m.sauce)}</ul></div>`:''}
-          <div><h4>Гарнир</h4><ul>${li(m.side)}</ul></div>
+          <div><h4>Гарнир</h4><ul>${li(scaled(m,m.side))}</ul></div>
           <div><h4>При готовке и на финише</h4><ul>${li([...(m.cook||[]),...m.finish])||'<li><span>—</span></li>'}</ul></div>
         </div>
         <div class="steps-h">Готовка</div>
@@ -596,13 +700,46 @@ function renderCost(){
   document.getElementById('mineCount').textContent=`Твоих цен: ${mine} из ${P.length}.`;
 }
 
+/* ---------- Рендер: профиль ---------- */
+function renderProfile(){
+  const pr=S.prof;
+  [['pSex','sex'],['pAct','act'],['pGoal','goal'],['pShare','share']].forEach(([id,k])=>
+    document.querySelectorAll('#'+id+' button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v)===String(pr[k]))));
+  [['pAge','age'],['pH','h'],['pW','w']].forEach(([id,k])=>{const el=document.getElementById(id); if(document.activeElement!==el)el.value=pr[k]??''});
+  renderProfOut();
+}
+function renderProfOut(){
+  const t=targets(), out=document.getElementById('profOut');
+  if(!t){out.innerHTML='<p class="hint" style="margin-top:14px">Заполни пол, возраст, рост и вес, и здесь появится твоя норма.</p>';return}
+  const r=Math.round, bags=totalBags();
+  let k=0,p=0,f=0,c=0;
+  M.forEach(m=>{const n=S.counts[m.id]||0; if(!n)return; const s=stats(m); k+=s.k*n; p+=s.p*n; f+=s.f*n; c+=s.c*n});
+  const avg=bags?{k:k/bags,p:p/bags,f:f/bags,c:c/bags}:null;
+  const row=(lbl,v,tg,u)=>{const pct=Math.min(150,v/tg*100);return `<div class="fitrow"><span>${lbl}</span><span class="tr"><i style="width:${pct/1.5}%"></i><em></em></span><span class="v">${r(v)} / ${r(tg)} ${u}</span></div>`};
+  out.innerHTML=`
+    <div class="ptitle">Твоя норма</div>
+    <div class="targets">
+      <div class="tcard"><h4>В день</h4><div class="big">${r(t.day.k).toLocaleString('ru-RU')}<small>ккал</small></div>
+        <div class="mac"><span>Б <b>${r(t.day.p)}</b></span><span>Ж <b>${r(t.day.f)}</b></span><span>У <b>${r(t.day.c)}</b></span></div></div>
+      <div class="tcard hl"><h4>Один обед · ${S.prof.share}%</h4><div class="big">${r(t.meal.k).toLocaleString('ru-RU')}<small>ккал</small></div>
+        <div class="mac"><span>Б <b>${r(t.meal.p)}</b></span><span>Ж <b>${r(t.meal.f)}</b></span><span>У <b>${r(t.meal.c)}</b></span></div></div>
+      <div class="tcard"><h4>Для справки</h4><div class="mac" style="margin-top:0;flex-direction:column;gap:4px">
+        <span>Базовый обмен <b>${r(t.bmr).toLocaleString('ru-RU')}</b> ккал</span><span>С активностью <b>${r(t.tdee).toLocaleString('ru-RU')}</b> ккал</span></div></div>
+    </div>
+    ${t.floored?'<p class="hint">Дефицит упёрся в безопасный минимум, поэтому норму ниже не опускаю.</p>':''}
+    ${avg?`<div class="ptitle">Меню после подгонки, среднее на обед</div>
+    <div class="pcard fit">${row('Ккал',avg.k,t.meal.k,'')}${row('Белок',avg.p,t.meal.p,'г')}${row('Жиры',avg.f,t.meal.f,'г')}${row('Углев.',avg.c,t.meal.c,'г')}
+    <p class="hint" style="margin:6px 0 0">Чёрная риска означает 100% цели. Жиры почти целиком приходят из маринадов и мяса, поэтому на них я влияю меньше всего. Если жиров мало, добирай их на финише: оливки, фета, орехи, авокадо.</p></div>`:''}
+    <p class="hint" style="margin-top:14px">Это оценка по формуле Миффлина — Сан Жеора, а не медицинская рекомендация. Взвешивайся раз в неделю: если за 2–3 недели вес стоит на месте, сдвинь цель или долю обеда.</p>`;
+}
+
 /* ---------- Табы ---------- */
-const TABS=['menu','shop','prep','prices'];
+const TABS=['menu','shop','prep','prices','profile'];
 function show(t){
   if(!TABS.includes(t))t='menu';
   S.tab=t;
   TABS.forEach(x=>{document.getElementById(x).hidden=x!==t;document.getElementById('t-'+x).setAttribute('aria-selected',x===t)});
-  if(t==='menu')renderMenu(); if(t==='shop')renderShop(); if(t==='prices')renderPrices();
+  if(t==='menu')renderMenu(); if(t==='shop')renderShop(); if(t==='prices')renderPrices(); if(t==='profile')renderProfile();
   save();
 }
 function renderAll(){renderSum();show(S.tab);renderShopBadge()}
@@ -610,6 +747,16 @@ function renderShopBadge(){const n=needs();let t=0,d=0;Object.keys(n).forEach(id
 
 /* ---------- События ---------- */
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[role=tab]');if(b){show(b.id.slice(2));window.scrollTo({top:0})}});
+document.getElementById('menu').addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b){show(b.dataset.go);window.scrollTo({top:0})}});
+function profChanged(){renderProfOut();renderSum();save()}
+['pSex','pAct','pGoal','pShare'].forEach((id,i)=>document.getElementById(id).addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return; const k=['sex','act','goal','share'][i];
+  S.prof[k]= k==='sex'||k==='goal'? b.dataset.v : +b.dataset.v; renderProfile(); renderSum(); save();
+}));
+document.getElementById('profile').addEventListener('input',e=>{
+  const k=e.target.dataset.prof; if(!k)return; const v=parseFloat(e.target.value.replace(',','.'));
+  S.prof[k]= v>0? v : null; profChanged();
+});
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.filter=b.dataset.f;renderMenu();save()});
 document.getElementById('grid').addEventListener('click',e=>{
   const b=e.target.closest('button[data-m]');if(!b)return;
@@ -669,7 +816,7 @@ function initTelegram(){
     try{tg.setHeaderColor&&tg.setHeaderColor(bg);tg.setBackgroundColor&&tg.setBackgroundColor(bg)}catch(e){}
   };
   const hap=()=>{try{tg.HapticFeedback&&tg.HapticFeedback.selectionChanged()}catch(e){}};
-  document.addEventListener('click',e=>{if(e.target.closest('.stepper button,[role=tab],.homebtn,#filters button'))hap()});
+  document.addEventListener('click',e=>{if(e.target.closest('.stepper button,[role=tab],.homebtn,#filters button,.seg button'))hap()});
   document.addEventListener('change',e=>{if(e.target.matches('input[type=checkbox]'))hap()});
   theme(); tg.onEvent('themeChanged',theme);
   if(tg.isVersionAtLeast&&tg.isVersionAtLeast('6.9')&&tg.CloudStorage){
