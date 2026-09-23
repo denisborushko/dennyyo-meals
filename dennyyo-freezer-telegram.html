@@ -204,6 +204,30 @@ ol.steps li::marker{font-family:var(--f-mono);color:var(--ink-3);font-size:12px}
 .btn.danger{color:var(--air)}
 textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);padding:10px;font:12px/1.4 var(--f-mono);resize:vertical;margin:10px 0}
 .hint{font-size:13px;color:var(--ink-3)}
+/* ideas */
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px;align-items:start}
+.idea{background:var(--surface);border:2px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:opacity .15s,border-color .15s}
+.idea.keep{border-color:var(--ok)} .idea.drop{opacity:.45}
+.iph{position:relative;aspect-ratio:4/3;background:var(--surface-2)}
+.iph img{width:100%;height:100%;object-fit:cover;display:block}
+.iph .tape{position:absolute;left:12px;bottom:-12px;margin:0}
+.ist{position:absolute;top:10px;right:10px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;color:#fff}
+.idea.keep .ist{background:var(--ok)} .idea.drop .ist{background:var(--air)}
+.ibody{padding:20px 16px 14px;display:flex;flex-direction:column;gap:10px}
+.ibody h3{font:600 16px/1.3 var(--f-body)}
+.ien{font-size:12.5px;color:var(--ink-3);margin-top:-6px}
+.chip.fmt-raw{color:var(--pan)} .chip.fmt-cooked{color:var(--accent)} .chip.plain{color:var(--ink-2)} .chip.plain::before{display:none}
+.imac{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.imac div{background:var(--surface-2);padding:6px 4px;text-align:center}
+.imac b{display:block;font:500 15px var(--f-mono)}
+.imac span{font-size:11px;color:var(--ink-3)}
+.src{font-size:12.5px;color:var(--accent)}
+.iact{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.iact button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px;font-weight:600;font-size:14px;color:var(--ink-2)}
+.iact .k[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.iact .d[aria-pressed="true"]{background:var(--air);border-color:var(--air);color:#fff}
+.ibar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:14px}
+.ibar .cnt{font:500 12.5px var(--f-mono);color:var(--ink-2)}
 /* profile */
 .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px}
 .pf{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--ink-2);font-weight:500}
@@ -236,7 +260,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v1.4</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v1.5</div>
       <h1><span id="bagsTitle">14 пакетов</span> в морозилке</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -246,6 +270,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 
   <nav class="tabs" role="tablist" aria-label="Разделы">
     <button role="tab" id="t-menu" aria-controls="menu" aria-selected="true">Меню</button>
+    <button role="tab" id="t-ideas" aria-controls="ideas" aria-selected="false">Идеи <small id="ideasBadge"></small></button>
     <button role="tab" id="t-shop" aria-controls="shop" aria-selected="false">Закупка <small id="shopBadge"></small></button>
     <button role="tab" id="t-prep" aria-controls="prep" aria-selected="false">Заготовка</button>
     <button role="tab" id="t-prices" aria-controls="prices" aria-selected="false">Цены</button>
@@ -263,6 +288,16 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
       <button aria-pressed="false" data-f="fish">Рыба</button>
     </div>
     <div class="grid" id="grid"></div>
+  </section>
+
+  <section role="tabpanel" id="ideas" aria-labelledby="t-ideas" hidden>
+    <p class="lead">26 блюд с Skinnytaste. Помечай, что оставить. Отобранные я переведу в пакеты с граммовкой, и они появятся в меню и закупке. КБЖУ здесь на одну порцию сайта, без подгонки под профиль.</p>
+    <div class="filters" id="ifilters">
+      <button aria-pressed="true" data-f="all">Все</button><button aria-pressed="false" data-f="none">Не решено</button><button aria-pressed="false" data-f="keep">Оставить</button><button aria-pressed="false" data-f="drop">Убрать</button><button aria-pressed="false" data-f="raw">Сырые пакеты</button>
+    </div>
+    <div class="ibar"><span class="cnt" id="icnt"></span><button class="btn primary" id="icopy">Скопировать выбор</button></div>
+    <textarea id="iout" hidden readonly aria-label="Мой выбор"></textarea>
+    <div class="igrid" id="igrid"></div>
   </section>
 
   <section role="tabpanel" id="shop" aria-labelledby="t-shop" hidden>
@@ -494,23 +529,24 @@ const M = [
   steps:['Аэрогриль 180°C: лосось 8–12 мин, цукини и брокколи рядом.','Картофель отдельно, заранее или параллельно.','На тарелку: фета, помидор, оливки, лимон.']},
 ];
 const METHOD = {air:'Аэрогриль',pan:'Сковорода'};
+const IDEAS = [{"id": "shawarma", "ru": "Шаверма на противне с нутом", "en": "Chicken Shawarma Sheet Pan Dinner", "url": "https://www.skinnytaste.com/chicken-shawarma-sheet-pan-dinner/", "img": "https://www.skinnytaste.com/wp-content/uploads/2025/09/Chicken-Shawarma-Sheet-Pan-Dinner-8.jpg", "m": "Духовка", "t": "45 мин", "s": 4, "k": 370, "p": 40, "c": 24, "f": 13, "fmt": "raw", "fl": "Сырой пакет", "ing": "куриное бедро 680 г, красный лук, болгарский перец, морковь, нут (банка), оливковое масло, копчёная паприка, зира, чеснок и лук сушёные, орегано, корица", "note": "Идеально ложится в наш формат: всё сырое в один пакет, потом аэрогриль 200°. Хлопья чили убираем. Близко к нашему №05, но с нутом, так что белка и клетчатки больше."}, {"id": "feta", "ru": "Курица в рассоле феты с рисом", "en": "Feta-Brined Chicken Bowls with Salad Shirazi", "url": "https://www.skinnytaste.com/feta-brined-chicken-bowls/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/07/Feta-Marinated-Chicken-14.jpg", "m": "Сковорода", "t": "1 ч 15 мин", "s": 4, "k": 411, "p": 30.5, "c": 40.5, "f": 14, "fmt": "raw", "fl": "Сырой пакет", "ing": "тонкое куриное филе 450 г, рассол от феты, оливковое масло, зира, куркума, орегано, чеснок; басмати; салат: огурцы, помидоры, красный лук, зелень, лимон", "note": "Лайфхак: рассол от феты вместо маринада, фету всё равно покупаем. Курицу морозим сырой в рассоле, салат делаем свежим."}, {"id": "shaking", "ru": "Вьетнамская «трясущаяся» говядина", "en": "Vietnamese Shaking Beef (Bo Luc Lac)", "url": "https://www.skinnytaste.com/vietnamese-shaking-beef-bo-luc-lac/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/04/Vietnamese-Shaking-Beef-12.jpg", "m": "Сковорода", "t": "1 ч 30 мин", "s": 6, "k": 216, "p": 28, "c": 11.5, "f": 7, "fmt": "raw", "fl": "Сырой пакет", "ing": "говяжий огузок/сирлоин кубиками 680 г, чеснок, устричный и рыбный соус, кунжутное масло, соевый соус; заправка: рисовый уксус, сахар; соус: лайм, соль, перец; салат, помидоры, красный лук", "note": "Сильный огонь, 5 минут, так что это самый быстрый говяжий пакет. Говядина едет в маринаде сырой, салат свежий. Порция на сайте маленькая: у нас будет 220 г мяса и рис."}, {"id": "medballs", "ru": "Средиземноморские тефтели из индейки с овощами", "en": "Sheet Pan Mediterranean Meatball Bowls", "url": "https://www.skinnytaste.com/sheet-pan-mediterranean-meatball-bowls-with-roasted-vegetables/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/03/Mediterranean-Meatball-Roasted-Vegetable-Bowls-23-SkinnyTaste-170326.jpg", "m": "Духовка", "t": "1 ч", "s": 4, "k": 490, "p": 33.5, "c": 37, "f": 24.5, "fmt": "raw", "fl": "Сырой пакет", "ing": "фарш индейки 450 г, батат 340 г, цветная капуста, брокколи, хумус, фета, панко, яйцо, петрушка, зира, паприка; маринованный красный лук, укроп, лимон", "note": "Тефтели лепим и шоково морозим на доске, овощи отдельно. Батат можно заменить тыквой. Похоже на нашего кандидата №110."}, {"id": "tacobowl", "ru": "Боул с курицей тако и фасолью", "en": "Chicken Taco Bowls", "url": "https://www.skinnytaste.com/chicken-taco-bowls/", "img": "https://www.skinnytaste.com/wp-content/uploads/2014/01/Chicken-Taco-Bowls-10.jpg", "m": "Сковорода", "t": "40 мин", "s": 4, "k": 550, "p": 45.5, "c": 66.5, "f": 10.5, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "куриное бедро 4 шт, чёрная фасоль (банка), рис, авокадо, пико-де-гальо, специи для тако, лайм, кинза, лук, перец, чеснок, зира, лавровый лист", "note": "Уже готовый обед на 550 ккал и 45 г белка: морозится вместе с рисом и фасолью. Можно и сырым пакетом, по сути это наш №08 с чёрной фасолью."}, {"id": "scallion", "ru": "Куриные бёдра с соусом из жжёного зелёного лука", "en": "Grilled Chicken Thighs with Charred Scallion Sauce", "url": "https://www.skinnytaste.com/grilled-boneless-chicken-thighs-with-charred-scallion-sauce/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/06/Grilled-Chicken-Thighs-with-Charred-Scallion-Sauce-21.jpg", "m": "Сковорода", "t": "20 мин", "s": 4, "k": 264, "p": 34, "c": 2, "f": 13, "fmt": "raw", "fl": "Сырой пакет", "ing": "куриное бедро ~680 г, 3 пучка зелёного лука, кунжутное масло, рисовый уксус, соевый соус, имбирь, зира", "note": "Соус замораживается кубиками в форме для льда, прямо как в том рилзе. Курица целиком в аэрогриль, 200°, 14 мин. Очень мало ингредиентов."}, {"id": "pestoballs", "ru": "Куриные тефтели с песто и пюре из белой фасоли", "en": "Chicken Meatballs with Pesto White Bean Puree", "url": "https://www.skinnytaste.com/chicken-meatballs-with-pesto-white-bean-puree/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/06/Pesto-Meatballs-with-White-Bean-Puree-14.jpg", "m": "Сковорода", "t": "35 мин", "s": 4, "k": 284, "p": 30.5, "c": 19, "f": 10, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "куриный фарш 450 г, белая фасоль (банка), базилик, чеснок, пармезан, лимон, сушёный лук", "note": "Вместо риса гарнир из фасолевого пюре, это разнообразит углеводы. Проще морозить уже готовым."}, {"id": "squashballs", "ru": "Тефтели с нутом, цветной капустой и тыквой", "en": "Sheet Pan Meatballs with Chickpeas, Cauliflower & Squash", "url": "https://www.skinnytaste.com/sheet-pan-meatballs-with-chickpeas-cauliflower-and-butternut-squash/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/05/Sheet-Pan-Meatballs-with-Chickpeas-15.jpg", "m": "Духовка", "t": "55 мин", "s": 4, "k": 490, "p": 36, "c": 41.5, "f": 22.5, "fmt": "raw", "fl": "Сырой пакет", "ing": "говяжий фарш 450 г, цветная капуста, брокколи, тыква (мускатная), нут, яйцо, сухари, укроп, петрушка, лимон, зира, кориандр", "note": "Сезонное блюдо: тыква и говядина. Тефтели морозятся сырыми отдельно, всё готовится на одном противне или в аэрогриле."}, {"id": "primavera", "ru": "Курица «гармошка» с кабачком и моцареллой", "en": "Hasselback Chicken Primavera", "url": "https://www.skinnytaste.com/hasselback-chicken-primavera/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/03/Sheet-Pan-Chicken-Primavera-14.jpg", "m": "Духовка", "t": "35 мин", "s": 4, "k": 307, "p": 44, "c": 5, "f": 11.5, "fmt": "raw", "fl": "Сырой пакет", "ing": "куриная грудка 4×170 г, кабачок, помидор, красный лук, моцарелла, пармезан, итальянские травы", "note": "Надрезы в грудке заранее, но кабачок и помидор вкладываем в день готовки: после заморозки они текут. Белка много, углеводов почти нет, гарнир добавляем свой."}, {"id": "flautas", "ru": "Флаутас с курицей в аэрогриле", "en": "Air Fryer Chicken Flautas", "url": "https://www.skinnytaste.com/air-fryer-chicken-flautas/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/03/Air-Fryer-Flautas-8.jpg", "m": "Аэрогриль", "t": "36 мин", "s": 6, "k": 357, "p": 27.5, "c": 35, "f": 11.5, "fmt": "raw", "fl": "Сырой пакет", "ing": "варёная курица 340 г, сыр пеппер-джек, 12 пшеничных тортилий, зира, зелёный чили (банка), лайм, чеснок", "note": "Скрученные трубочки морозятся и идут в аэрогриль прямо из морозилки, 200°, 9 мин. Зелёный чили можно не класть. Удобный перекус."}, {"id": "bolognese", "ru": "Болоньезе из индейки в одной кастрюле", "en": "Turkey Bolognese", "url": "https://www.skinnytaste.com/turkey-bolognese/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/02/One-Pot-Turkey-Bolognese-20.jpg", "m": "Сковорода", "t": "45 мин", "s": 4, "k": 509, "p": 37.5, "c": 60.5, "f": 14, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "фарш индейки 450 г, паста 280 г, томаты протёртые, бульон, томатная паста, лук, морковь, сельдерей, чеснок, пармезан", "note": "Готовое блюдо, морозится порциями. 500 ккал и 37 г белка, так что хорошо идёт на массу."}, {"id": "peanut", "ru": "Курица в арахисовом соусе (мультиварка)", "en": "Slow Cooker Peanut Chicken", "url": "https://www.skinnytaste.com/slow-cooker-peanut-chicken/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/02/Slow-Cooker-Thai-Inspired-Peanut-Chicken-10.jpg", "m": "Мультиварка", "t": "2 ч 25 мин", "s": 6, "k": 316, "p": 31, "c": 9, "f": 18, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "куриная грудка 680 г, арахисовая паста, кокосовое молоко, карри, соевый соус, рисовый уксус, шрирача, чеснок, имбирь, лук", "note": "⚠ В рецепте кокосовое молоко и шрирача, а ты их убрал. Наш №10 с арахисовым соусом уже покрывает этот вкус."}, {"id": "milanese", "ru": "Гигантская куриная котлета «Миланезе»", "en": "Giant Chicken Milanese", "url": "https://www.skinnytaste.com/giant-chicken-milanese/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/06/Giant-Chicken-Cutlet-Milanese-9.jpg", "m": "Духовка", "t": "40 мин", "s": 4, "k": 318, "p": 31, "c": 21, "f": 12.5, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "куриный фарш 450 г, пармезан, мука, яйца, панко, руккола, лимон", "note": "Морозим готовой, разогреваем в аэрогриле 5 мин, чтобы корочка осталась хрустящей. Руккола свежая."}, {"id": "bran", "ru": "«Жареная» курица в аэрогриле в отрубях", "en": "Air Fryer Fried Chicken", "url": "https://www.skinnytaste.com/air-fryer-fried-chicken/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/08/Air-Fryer-Fried-Chicken-10.jpg", "m": "Аэрогриль", "t": "32 мин", "s": 4, "k": 386, "p": 55, "c": 18, "f": 12, "fmt": "raw", "fl": "Сырой пакет", "ing": "куриные голени без кожи 8 шт, отрубные хлопья, лёгкий майонез, паприка, чеснок", "note": "55 г белка на порцию, это рекорд подборки. На сайте её не морозят, но голени в панировке можно заморозить сырыми и жарить из морозилки на 5 мин дольше."}, {"id": "sausage", "ru": "Куриные колбаски с перцем", "en": "Sausage and Peppers", "url": "https://www.skinnytaste.com/sausage-and-peppers-recipe/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/07/Sausage-and-Peppers-11-260x390.jpg", "m": "Аэрогриль", "t": "35 мин", "s": 4, "k": 413, "p": 28, "c": 38, "f": 17, "fmt": "raw", "fl": "Сырой пакет", "ing": "куриные колбаски 400 г, красный и жёлтый перец, лук, оливковое масло; хлеб", "note": "Самый простой пакет: 3 ингредиента, аэрогриль. Но колбаски это переработанное мясо, так что только если найдёшь нормальные по составу."}, {"id": "rollups", "ru": "Куриные рулеты в соусе энчилада", "en": "Enchilada Chicken Roll-Ups", "url": "https://www.skinnytaste.com/enchilada-chicken-roll-ups/", "img": "https://www.skinnytaste.com/wp-content/uploads/2017/05/Danielle-Chicken-Enchilada-Roll-Ups.jpg", "m": "Духовка", "t": "55 мин", "s": 6, "k": 261, "p": 31, "c": 8, "f": 11.5, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "куриная грудка 680 г, соус энчилада, зелёный чили, мексиканский сыр, авокадо, зира, орегано, чили", "note": "Соус энчилада у нас не купить, придётся делать из томатной пасты и копчёной паприки. Не самый простой вариант."}, {"id": "ratatouille", "ru": "Лазанья-рататуй без макарон, на твороге", "en": "Ratatouille Lasagna (Noodle-Less)", "url": "https://www.skinnytaste.com/ratatouille-lasagna/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/07/Ratatouille-Lasagna-37.jpg", "m": "Духовка", "t": "2 ч", "s": 4, "k": 415, "p": 39, "c": 37, "f": 16.5, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "зернёный творог 400 г, моцарелла, баклажан, кабачок, жёлтый цукини, томаты протёртые, перцы, базилик, тимьян", "note": "Вегетарианская, но с 39 г белка за счёт творога. Долго готовить, 2 часа, зато морозится порциями отлично."}, {"id": "zlasagna", "ru": "Лазанья из кабачков с говядиной", "en": "Zucchini Lasagna", "url": "https://www.skinnytaste.com/zucchini-lasagna/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/08/Zucchini-Lasagna-21.jpg", "m": "Духовка", "t": "2 ч 15 мин", "s": 8, "k": 275, "p": 26, "c": 13, "f": 13, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "постная говядина 450 г, 3 кабачка, рикотта, моцарелла 450 г, томаты протёртые, пармезан, яйцо, лук, чеснок, базилик", "note": "Низкоуглеводная. Для массы добавь гарнир или бери двойную порцию."}, {"id": "tacos", "ru": "Курица для тако в мультиварке", "en": "Slow Cooker Chicken Tacos", "url": "https://www.skinnytaste.com/slow-cooker-chicken-tacos/", "img": "https://www.skinnytaste.com/wp-content/uploads/2020/04/Slow-Cooker-Chicken-Tacos-4.jpg", "m": "Мультиварка", "t": "4 ч", "s": 4, "k": 474, "p": 45.5, "c": 44.5, "f": 13.5, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "куриная грудка 680 г, сальса, зира, чеснок, адобо; кукурузные тортильи, капуста, лайм, кинза, авокадо", "note": "Можно заложить сырым пакетом: курица и сальса, потом прямо в мультиварку. Если мультиварки нет, то на сковороде под крышкой, 25 мин."}, {"id": "stew", "ru": "Классическое рагу из говядины", "en": "Beef Stew", "url": "https://www.skinnytaste.com/beef-stew/", "img": "https://www.skinnytaste.com/wp-content/uploads/2023/10/Beef-Stew-Recipe-10.jpg", "m": "Духовка", "t": "3 ч", "s": 6, "k": 439, "p": 40.5, "c": 20.5, "f": 22, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "говяжья лопатка 1,1 кг, бульон, картофель, морковь, сельдерей, лук, шампиньоны, горошек, мука, томатная паста, тимьян, лавр", "note": "Долго томится, поэтому в формат «10 минут» не вписывается, но как готовое замороженное блюдо на зиму отлично."}, {"id": "cacciatore", "ru": "Курица «каччаторе» в томатах (мультиварка)", "en": "Slow Cooker Chicken Cacciatore", "url": "https://www.skinnytaste.com/crock-pot-chicken-cacciatore/", "img": "https://www.skinnytaste.com/wp-content/uploads/2012/06/Crockpot-Chicken-Cacciatore-15.jpg", "m": "Мультиварка", "t": "4 ч", "s": 8, "k": 126, "p": 13.9, "c": 9.2, "f": 2.8, "fmt": "raw", "fl": "Сырой пакет", "ing": "куриные бёдра на кости 8 шт, томаты протёртые, красный и зелёный перец, лук, орегано, лавр, базилик", "note": "Классический dump-bag: всё сырое в пакет, потом в мультиварку. Порция на сайте крошечная, у нас будет 2 бедра и рис или паста."}, {"id": "carnitas", "ru": "Карнитас: тушёная свинина по-мексикански", "en": "Pork Carnitas", "url": "https://www.skinnytaste.com/mexican-slow-cooked-pork-carnitas/", "img": "https://www.skinnytaste.com/wp-content/uploads/2010/03/Slow-Cooker-Carnitas-4.jpg", "m": "Мультиварка", "t": "8 ч 40 мин", "s": 11, "k": 160, "p": 20, "c": 1, "f": 7, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "свиная лопатка 1,1 кг, чеснок, зира, адобо, чипотле в соусе адобо, бульон, лавр, орегано", "note": "⚠ Чипотле острые, можно заменить копчёной паприкой. Готовое мясо морозится порциями и потом идёт в боулы, тако или с рисом."}, {"id": "braised", "ru": "Тушёная говядина в скороварке", "en": "Instant Pot Braised Beef", "url": "https://www.skinnytaste.com/instant-pot-braised-beef/", "img": "https://www.skinnytaste.com/wp-content/uploads/2021/02/Instant-Pot-Braised-Beef-6.jpg", "m": "Скороварка", "t": "1 ч 40 мин", "s": 8, "k": 255, "p": 36, "c": 5.5, "f": 10, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "говяжья лопатка 1,4 кг, лук, чеснок, орегано, зира, чипотле, томаты, бульон, корица, лавр", "note": "Нужна скороварка. Без чипотле, с копчёной паприкой. Отличная заготовка мяса на неделю."}, {"id": "stroganoff", "ru": "Бефстроганов в мультиварке", "en": "Slow Cooker Beef Stroganoff", "url": "https://www.skinnytaste.com/slow-cooker-beef-stroganoff/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/02/Slow-Cooker-Beef-Stroganoff-17.jpg", "m": "Мультиварка", "t": "5 ч 30 мин", "s": 6, "k": 579, "p": 46, "c": 61, "f": 17.5, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "говяжья лопатка 900 г, лук, шампиньоны 450 г, сметана, бульон, паприка, вустерский соус, яичная лапша", "note": "Самый калорийный в подборке: 580 ккал и 46 г белка, идеально на массу. Соус морозим отдельно от лапши."}, {"id": "dumplings", "ru": "Курица с клёцками, луком-пореем и горошком", "en": "Chicken and Dumplings", "url": "https://www.skinnytaste.com/chicken-and-dumplings-with-leeks-mushrooms-and-peas/", "img": "https://www.skinnytaste.com/wp-content/uploads/2026/04/Spring-Chicken-and-Dumplings-18.jpg", "m": "Сковорода", "t": "1 ч 15 мин", "s": 5, "k": 383, "p": 51.5, "c": 20, "f": 9, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "куриное бедро 8 шт, шампиньоны, лук-порей, самоподнимающаяся мука, йогурт, бульон, горошек, шнитт-лук", "note": "51 г белка. Похоже на домашний суп-рагу, морозится порциями."}, {"id": "lentil", "ru": "Суп с курицей и чечевицей", "en": "Chicken Lentil Soup", "url": "https://www.skinnytaste.com/lentil-and-chicken-soup-3-pts/", "img": "https://www.skinnytaste.com/wp-content/uploads/2013/12/Chicken-Lentil-Soup-17.jpg", "m": "Сковорода", "t": "50 мин", "s": 8, "k": 263, "p": 23.5, "c": 40, "f": 3, "fmt": "cooked", "fl": "Готовое, порциями", "ing": "сухая чечевица 450 г, куриное бедро 340 г, лук, зелёный лук, чеснок, кинза, помидор, зира, орегано", "note": "Дешёвый и сытный. Хорош как второй приём пищи, а не как основной обед."}];
 
 /* ---------- Состояние и хранение ---------- */
 const KEY_P='fms1_prices', KEY_S='fms1_state';
-let S = {prices:{},packs:{},counts:{},got:{},home:{},tab:'menu',filter:'all',prof:{sex:null,age:null,h:null,w:null,act:1.55,goal:'gain',share:35}};
+let S = {prices:{},packs:{},counts:{},got:{},home:{},tab:'menu',filter:'all',prof:{sex:null,age:null,h:null,w:null,act:1.55,goal:'gain',share:35},ideas:{},ifilter:'all'};
 M.forEach(m=>S.counts[m.id]=1);
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function applySaved(pr,st){
   if(pr){S.prices=pr.prices||{};S.packs=pr.packs||{}}
-  if(st){['counts','got','home','prof'].forEach(k=>{if(st[k])S[k]=Object.assign(S[k],st[k])});if(st.tab)S.tab=st.tab;if(st.filter)S.filter=st.filter}
+  if(st){['counts','got','home','prof','ideas'].forEach(k=>{if(st[k])S[k]=Object.assign(S[k],st[k])});if(st.tab)S.tab=st.tab;if(st.filter)S.filter=st.filter}
 }
 applySaved(lsGet(KEY_P),lsGet(KEY_S));
 let saveT;
 function save(){
   clearTimeout(saveT);
   saveT=setTimeout(()=>{
-    const pr={prices:S.prices,packs:S.packs}, st={counts:S.counts,got:S.got,home:S.home,tab:S.tab,filter:S.filter,prof:S.prof};
+    const pr={prices:S.prices,packs:S.packs}, st={counts:S.counts,got:S.got,home:S.home,tab:S.tab,filter:S.filter,prof:S.prof,ideas:S.ideas};
     lsSet(KEY_P,pr);lsSet(KEY_S,st);
     const cs=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.CloudStorage;
     if(cs&&Telegram.WebApp.isVersionAtLeast&&Telegram.WebApp.isVersionAtLeast('6.9')){
@@ -709,6 +745,28 @@ function renderCost(){
   document.getElementById('mineCount').textContent=`Твоих цен: ${mine} из ${P.length}.`;
 }
 
+/* ---------- Рендер: идеи ---------- */
+function renderIdeasBadge(){const k=IDEAS.filter(r=>S.ideas[r.id]==='keep').length;document.getElementById('ideasBadge').textContent=k?k+'/'+IDEAS.length:IDEAS.length}
+function renderIdeas(){
+  const f=S.ifilter;
+  document.querySelectorAll('#ifilters button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===f));
+  document.getElementById('igrid').innerHTML=IDEAS.map((r,i)=>[r,i]).filter(([r])=>f==='all'||(f==='none'&&!S.ideas[r.id])||S.ideas[r.id]===f||(f==='raw'&&r.fmt==='raw')).map(([r,i])=>{const st=S.ideas[r.id]||'';return `
+  <article class="idea ${st}" data-id="${r.id}">
+    <div class="iph"><img loading="lazy" src="${r.img}" alt="" onerror="this.remove()"><span class="tape">#${pad(i+1)}</span>${st?`<span class="ist">${st==='keep'?'Оставить':'Убрать'}</span>`:''}</div>
+    <div class="ibody">
+      <h3>${esc(r.ru)}</h3><div class="ien">${esc(r.en)}</div>
+      <div class="meta"><span class="chip fmt-${r.fmt}">${r.fl}</span><span class="chip plain">${r.m}</span><span class="chip plain">${r.t}</span></div>
+      <div class="imac"><div><b>${r.k}</b><span>ккал</span></div><div><b>${r.p}</b><span>белок</span></div><div><b>${r.f}</b><span>жиры</span></div><div><b>${r.c}</b><span>углев.</span></div></div>
+      <div class="note">${esc(r.note)}</div>
+      <details class="how"><summary>Ингредиенты</summary><p class="hint" style="margin:8px 0 0">${esc(r.ing)}</p></details>
+      <a class="src" href="${r.url}" target="_blank" rel="noopener">Полный рецепт на Skinnytaste ↗</a>
+      <div class="iact"><button class="k" data-v="keep" aria-pressed="${st==='keep'}">✓ Оставить</button><button class="d" data-v="drop" aria-pressed="${st==='drop'}">✕ Убрать</button></div>
+    </div></article>`}).join('') || '<p class="hint">Здесь пусто.</p>';
+  const k=IDEAS.filter(r=>S.ideas[r.id]==='keep').length,d=IDEAS.filter(r=>S.ideas[r.id]==='drop').length;
+  document.getElementById('icnt').textContent=`оставить ${k} · убрать ${d} · не решено ${IDEAS.length-k-d}`;
+  renderIdeasBadge();
+}
+
 /* ---------- Рендер: профиль ---------- */
 function renderProfile(){
   const pr=S.prof;
@@ -743,16 +801,16 @@ function renderProfOut(){
 }
 
 /* ---------- Табы ---------- */
-const TABS=['menu','shop','prep','prices','profile'];
+const TABS=['menu','ideas','shop','prep','prices','profile'];
 function show(t){
   if(!TABS.includes(t))t='menu';
   S.tab=t;
   TABS.forEach(x=>{document.getElementById(x).hidden=x!==t;const tb=document.getElementById('t-'+x);if(tb)tb.setAttribute('aria-selected',x===t)});
   document.getElementById('avaBtn').setAttribute('aria-current',t==='profile'?'page':'false');
-  if(t==='menu')renderMenu(); if(t==='shop')renderShop(); if(t==='prices')renderPrices(); if(t==='profile')renderProfile();
+  if(t==='menu')renderMenu(); if(t==='shop')renderShop(); if(t==='prices')renderPrices(); if(t==='ideas')renderIdeas(); if(t==='profile')renderProfile();
   save();
 }
-function renderAll(){renderSum();show(S.tab);renderShopBadge()}
+function renderAll(){renderSum();show(S.tab);renderShopBadge();renderIdeasBadge()}
 function renderShopBadge(){const n=needs();let t=0,d=0;Object.keys(n).forEach(id=>{if(!S.home[id]){t++;if(S.got[id])d++}});document.getElementById('shopBadge').textContent=t?`${d}/${t}`:''}
 
 /* ---------- События ---------- */
@@ -767,6 +825,17 @@ function profChanged(){renderProfOut();renderSum();save()}
 document.getElementById('profile').addEventListener('input',e=>{
   const k=e.target.dataset.prof; if(!k)return; const v=parseFloat(e.target.value.replace(',','.'));
   S.prof[k]= v>0? v : null; profChanged();
+});
+document.getElementById('ifilters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.ifilter=b.dataset.f;renderIdeas()});
+document.getElementById('igrid').addEventListener('click',e=>{const b=e.target.closest('.iact button');if(!b)return;const id=b.closest('.idea').dataset.id;
+  if(S.ideas[id]===b.dataset.v)delete S.ideas[id];else S.ideas[id]=b.dataset.v; renderIdeas(); save();});
+document.getElementById('icopy').addEventListener('click',()=>{
+  const L=v=>IDEAS.map((r,i)=>[r,i]).filter(([r])=>S.ideas[r.id]===v).map(([r,i])=>`#${pad(i+1)} ${r.ru}`).join('\n')||'—';
+  const txt=`Идеи Skinnytaste, мой выбор\n\nОСТАВИТЬ:\n${L('keep')}\n\nУБРАТЬ:\n${L('drop')}`;
+  const ta=document.getElementById('iout'); ta.value=txt; ta.hidden=false;
+  const tg=window.Telegram&&Telegram.WebApp;
+  const fb=()=>{ta.focus();ta.select();toast('Выделил текст, скопируй его')};
+  try{navigator.clipboard.writeText(txt).then(()=>toast('Скопировано, вставь в чат'),fb)}catch(e){fb()}
 });
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.filter=b.dataset.f;renderMenu();save()});
 document.getElementById('grid').addEventListener('click',e=>{
@@ -827,7 +896,7 @@ function initTelegram(){
     try{tg.setHeaderColor&&tg.setHeaderColor(bg);tg.setBackgroundColor&&tg.setBackgroundColor(bg)}catch(e){}
   };
   const hap=()=>{try{tg.HapticFeedback&&tg.HapticFeedback.selectionChanged()}catch(e){}};
-  document.addEventListener('click',e=>{if(e.target.closest('.stepper button,[role=tab],.homebtn,#filters button,.seg button'))hap()});
+  document.addEventListener('click',e=>{if(e.target.closest('.stepper button,[role=tab],.homebtn,#filters button,.seg button,.iact button,#ifilters button'))hap()});
   document.addEventListener('change',e=>{if(e.target.matches('input[type=checkbox]'))hap()});
   theme(); tg.onEvent('themeChanged',theme);
   const u=tg.initDataUnsafe&&tg.initDataUnsafe.user;
