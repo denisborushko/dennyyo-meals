@@ -94,9 +94,11 @@ section[role="tabpanel"]{animation:fade .18s ease}
 .meal{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:0 16px 14px;display:flex;flex-direction:column;gap:10px;transition:opacity .15s}
 .meal.off{opacity:.45}
 .mph{position:relative;margin:0 -16px;aspect-ratio:16/10;background:var(--surface-2);overflow:hidden}
-.car{display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
-.car::-webkit-scrollbar{display:none}
-.car img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;scroll-snap-align:start}
+.mph{touch-action:pan-y}
+.car{display:flex;width:100%;height:100%;transition:transform .3s ease;will-change:transform}
+.car.drag{transition:none}
+.car img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;user-select:none;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.car{transition:none}}
 .cnav{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.85);color:#15212A;font:600 20px/1 var(--f-body);display:grid;place-items:center;padding:0 0 2px}
 .cnav.prev{left:8px}.cnav.next{right:8px}
 @media (hover:none){.cnav{display:none}}
@@ -273,7 +275,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v1.7</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v1.8</div>
       <h1><span id="bagsTitle">14 пакетов</span> в морозилке</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -862,12 +864,18 @@ document.getElementById('icopy').addEventListener('click',()=>{
 });
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.filter=b.dataset.f;renderMenu();save()});
 const gridEl=document.getElementById('grid');
-gridEl.addEventListener('scroll',e=>{const c=e.target;if(!c.classList||!c.classList.contains('car'))return;
-  clearTimeout(c._t); c._t=setTimeout(()=>carSet(c.parentNode,Math.round(c.scrollLeft/c.clientWidth)),80);},true);
-function carSet(w,i){w.querySelectorAll('.dots i').forEach((d,k)=>d.classList.toggle('on',k===i));const cc=w.querySelector('.ccount');if(cc)cc.textContent=(i+1)+'/'+w.querySelector('.car').children.length;}
-gridEl.addEventListener('click',e=>{const b=e.target.closest('.cnav');if(!b)return;const w=b.parentNode,c=w.querySelector('.car'),n=c.children.length;
-  let i=Math.round(c.scrollLeft/c.clientWidth)+(b.classList.contains('next')?1:-1); i=(i+n)%n;
-  c.scrollTo({left:i*c.clientWidth,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}); carSet(w,i);});
+function carGo(w,i){const c=w.querySelector('.car'),n=c.children.length;i=(i+n)%n;w.dataset.i=i;c.style.transform=`translateX(${-i*100}%)`;
+  w.querySelectorAll('.dots i').forEach((d,k)=>d.classList.toggle('on',k===i));const cc=w.querySelector('.ccount');if(cc)cc.textContent=(i+1)+'/'+n;}
+gridEl.addEventListener('click',e=>{const b=e.target.closest('.cnav');if(!b)return;const w=b.closest('.mph');carGo(w,(+w.dataset.i||0)+(b.classList.contains('next')?1:-1));});
+let drag=null;
+gridEl.addEventListener('pointerdown',e=>{const w=e.target.closest('.mph');if(!w||e.target.closest('.cnav')||w.querySelector('.car').children.length<2)return;
+  drag={w,x:e.clientX,y:e.clientY,dx:0,on:false,id:e.pointerId};});
+window.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!drag.on){if(Math.abs(dx)<8)return; if(Math.abs(dy)>Math.abs(dx)){drag=null;return} drag.on=true;drag.w.querySelector('.car').classList.add('drag');}
+  drag.dx=dx;const c=drag.w.querySelector('.car'),i=+drag.w.dataset.i||0;c.style.transform=`translateX(calc(${-i*100}% + ${dx}px))`;e.preventDefault();},{passive:false});
+function endDrag(){if(!drag)return;const {w,dx,on}=drag;drag=null;if(!on)return;w.querySelector('.car').classList.remove('drag');
+  const i=+w.dataset.i||0, t=w.clientWidth*0.18; carGo(w, dx<-t?i+1: dx>t?i-1: i);}
+window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',endDrag);
 document.getElementById('grid').addEventListener('click',e=>{
   const b=e.target.closest('button[data-m]');if(!b)return;
   const id=+b.dataset.m; S.counts[id]=Math.max(0,Math.min(5,(S.counts[id]||0)+ +b.dataset.d));
