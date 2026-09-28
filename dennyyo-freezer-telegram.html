@@ -322,7 +322,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v2.7</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v2.8</div>
       <h1><span id="bagsTitle">14 пакетов</span> в морозилке</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -984,7 +984,7 @@ function renderEvening(){
           <div class="erec-in">
           <div class="note">${esc(r.kcal)}</div>
           <div class="serv"><span>${esc(r.unit||'Порций')}</span><span class="stepper"><button data-sv="-1" aria-label="Меньше">−</button><output>${sv}</output><button data-sv="1" aria-label="Больше">+</button></span></div>
-          <div class="ecols">${r.groups.map(g=>`<div class="egrp"><h4>${esc(g.n)}</h4><ul>${g.items.map(([n,a,u])=>`<li><span>${esc(n)}</span><span>${a?famt(a*k)+' ':''}${esc(u)}</span></li>`).join('')}</ul></div>`).join('')}</div>
+          <div class="ecols">${r.groups.map(g=>`<div class="egrp"><h4>${esc(g.n)}</h4><ul>${g.items.map(([n,a,u])=>`<li><span>${esc(n)}</span><span${a?` data-a="${a}" data-u="${esc(u)}"`:''}>${a?famt(a*k)+' ':''}${esc(u)}</span></li>`).join('')}</ul></div>`).join('')}</div>
           <div class="steps-t">Как готовить</div>
           ${r.steps.map(g=>`<div class="steps-h">${esc(g.n)}</div><ol class="steps">${g.s.map(stepHtml).join('')}</ol>`).join('')}
           </div>
@@ -1140,9 +1140,12 @@ document.getElementById('profile').addEventListener('input',e=>{
   const k=e.target.dataset.prof; if(!k)return; const v=parseFloat(e.target.value.replace(',','.'));
   S.prof[k]= v>0? v : null; profChanged();
 });
-document.getElementById('eveList').addEventListener('click',e=>{const b=e.target.closest('[data-sv]');if(!b)return;const id=b.closest('.eve').dataset.eid,r=EVENING.find(x=>x.id===id);
-  S.serv[id]=Math.max(1,Math.min(40,(S.serv[id]||r.serves)+ +b.dataset.sv));const v=b.closest('.eve').querySelector('video'),t=v.currentTime,pl=!v.paused;
-  renderEvening();const nv=document.querySelector(`.eve[data-eid="${id}"] video`);if(t){nv.currentTime=t;if(pl)nv.play().catch(()=>{})}save();});
+document.getElementById('eveList').addEventListener('click',e=>{const b=e.target.closest('[data-sv]');if(!b)return;e.preventDefault();
+  const card=b.closest('.eve'),id=card.dataset.eid,r=EVENING.find(x=>x.id===id);
+  const sv=Math.max(1,Math.min(40,(S.serv[id]||r.serves)+ +b.dataset.sv));S.serv[id]=sv;const k=sv/r.serves;
+  card.querySelector('.serv output').textContent=sv;
+  card.querySelectorAll('[data-a]').forEach(el=>{el.textContent=famt(+el.dataset.a*k)+' '+el.dataset.u});
+  save();});
 document.getElementById('ifilters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.ifilter=b.dataset.f;renderIdeas()});
 document.getElementById('igrid').addEventListener('click',e=>{const b=e.target.closest('.iact button');if(!b)return;const id=b.closest('.idea').dataset.id;
   if(S.ideas[id]===b.dataset.v)delete S.ideas[id];else S.ideas[id]=b.dataset.v; renderIdeas(); save();});
