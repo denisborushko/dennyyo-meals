@@ -244,6 +244,25 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 .ibar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:14px}
 .ibar .cnt{font:500 12.5px var(--f-mono);color:var(--ink-2)}
 /* evening */
+/* evening grid */
+#eveList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;grid-auto-flow:dense;max-width:1100px}
+@media (min-width:761px){#eveList{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}}
+#eveList .eve{display:flex;flex-direction:column;max-width:none;border-radius:14px;scroll-margin-top:72px}
+#eveList .eve:not(.is-open) .ebody{flex:1}
+#eveList .eve:not(.is-open) .erec{margin-top:auto}
+#eveList .eve.is-open{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,340px) 1fr;border-radius:18px}
+@media (max-width:760px){#eveList .eve.is-open{grid-template-columns:1fr}}
+.ethumb{position:relative;aspect-ratio:4/5;background:var(--surface-2);cursor:pointer;overflow:hidden}
+.ethumb img{width:100%;height:100%;object-fit:cover;display:block}
+.eplay{position:absolute;right:8px;bottom:8px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:12px;padding-left:2px}
+#eveList .eve:not(.is-open) .ebody{padding:10px 11px 12px;gap:6px}
+#eveList .eve:not(.is-open) .ebody h3{font-size:14.5px;line-height:1.25;cursor:pointer}
+#eveList .eve:not(.is-open) .ien{display:none}
+#eveList .eve:not(.is-open) .eyebrow{font-size:9.5px;letter-spacing:.06em}
+#eveList .eve:not(.is-open) .erec>summary{padding:6px 11px;font-size:12.5px}
+#eveList .eve.is-open .emedia{width:100%;max-height:620px;aspect-ratio:9/16;object-fit:cover;background:#000;display:block}
+@media (max-width:760px){#eveList .eve.is-open .emedia{max-height:70vh}}
+#eveList .eve.is-open .ethumb{aspect-ratio:4/3}
 .eve{align-items:start}
 .eimg{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--surface-2)}
 @media (min-width:761px){.eimg{aspect-ratio:3/4}}
@@ -324,7 +343,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v2.9</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v3.0</div>
       <h1><span id="bagsTitle">14 пакетов</span> в морозилке</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -357,7 +376,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 
   <section role="tabpanel" id="evening" aria-labelledby="t-evening" hidden>
     <p class="lead">Не заготовки, а блюда «здесь и сейчас» на вечер: когда есть 30–40 минут и хочется чего-то особенного.</p>
-    <div id="eveList" style="display:grid;gap:18px"></div>
+    <div id="eveList"></div>
   </section>
 
   <section role="tabpanel" id="ideas" aria-labelledby="t-ideas" hidden>
@@ -1010,27 +1029,42 @@ const FRAC={0.25:'¼',0.5:'½',0.75:'¾',1.5:'1½',2.5:'2½'};
 function famt(n){if(!n)return '';const r=Math.round(n*4)/4;if(FRAC[r])return FRAC[r];return r>=10?Math.round(r):String(+r.toFixed(2)).replace('.',',')}
 const EOPEN=new Set();
 function stepHtml(x){const t=Array.isArray(x)?x[0]:x, im=Array.isArray(x)?x[1]:null;return `<li>${esc(t)}${im?`<img class="simg" src="${im}" alt="" loading="lazy">`:''}</li>`}
-function renderEvening(){
-  document.getElementById('eveList').innerHTML=EVENING.map(r=>{
-    const sv=S.serv[r.id]||r.serves, k=sv/r.serves;
-    return `<article class="eve" data-eid="${r.id}">
-      ${r.video?`<video src="${r.video}" poster="${r.poster}" controls playsinline preload="metadata"></video>`:`<img class="eimg" src="${r.poster}" alt="" loading="lazy">`}
+function emedia(r,open){
+  if(open&&r.video)return `<video class="emedia" src="${r.video}" poster="${r.poster}" controls playsinline preload="metadata"></video>`;
+  return `<div class="emedia ethumb" data-eopen><img src="${r.poster}" alt="" loading="lazy">${r.video?'<span class="eplay">▶</span>':''}</div>`}
+function eveCard(r){
+  const open=EOPEN.has(r.id), sv=S.serv[r.id]||r.serves, k=sv/r.serves;
+  return `<article class="eve${open?' is-open':''}" data-eid="${r.id}">
+      ${emedia(r,open)}
       <div class="ebody">
         <div class="eyebrow">${esc(r.method)} · ${esc(r.time)}</div>
-        <h3>${esc(r.ru)}</h3><div class="ien">${esc(r.en)}${r.src?` · <a href="${r.src}" target="_blank" rel="noopener">источник</a>`:''}</div>
-        <details class="how erec"${EOPEN.has(r.id)?' open':''}><summary>Рецепт</summary>
+        <h3 data-eopen>${esc(r.ru)}</h3><div class="ien">${esc(r.en)}${r.src?` · <a href="${r.src}" target="_blank" rel="noopener">источник</a>`:''}</div>
+        <details class="how erec"${open?' open':''}><summary>${open?'Свернуть':'Рецепт'}</summary>
           <div class="erec-in">
           <div class="note">${esc(r.kcal)}</div>
           <div class="serv"><span>${esc(r.unit||'Порций')}</span><span class="stepper"><button data-sv="-1" aria-label="Меньше">−</button><output>${sv}</output><button data-sv="1" aria-label="Больше">+</button></span></div>
           <div class="ecols">${r.groups.map(g=>`<div class="egrp"><h4>${esc(g.n)}</h4><ul>${g.items.map(([n,a,u])=>`<li><span>${esc(n)}</span><span${a?` data-a="${a}" data-u="${esc(u)}"`:''}>${a?famt(a*k)+' ':''}${esc(u)}</span></li>`).join('')}</ul></div>`).join('')}</div>
           <div class="steps-t">Как готовить</div>
           ${r.steps.map(g=>`<div class="steps-h">${esc(g.n)}</div><ol class="steps">${g.s.map(stepHtml).join('')}</ol>`).join('')}
+          ${cbtn('ev-'+r.id,r.ru)}
           </div>
         </details>
-        ${cbtn('ev-'+r.id,r.ru)}
-      </div></article>`}).join('');
-  document.querySelectorAll('#eveList details.erec').forEach(d=>d.addEventListener('toggle',()=>{const id=d.closest('.eve').dataset.eid;d.open?EOPEN.add(id):EOPEN.delete(id)}));
+      </div></article>`}
+function setEveOpen(card,open){
+  const id=card.dataset.eid,r=EVENING.find(x=>x.id===id);
+  open?EOPEN.add(id):EOPEN.delete(id);
+  const tmp=document.createElement('div');tmp.innerHTML=eveCard(r);const nc=tmp.firstElementChild;
+  card.replaceWith(nc);
+  requestAnimationFrame(()=>nc.scrollIntoView({block:'start',behavior:'smooth'}));
 }
+function renderEvening(){
+  document.getElementById('eveList').innerHTML=EVENING.map(eveCard).join('');
+}
+document.getElementById('eveList').addEventListener('click',e=>{
+  const sum=e.target.closest('.erec>summary'), th=e.target.closest('[data-eopen]');
+  if(sum){e.preventDefault();const c=sum.closest('.eve');setEveOpen(c,!c.classList.contains('is-open'));return}
+  if(th){const c=th.closest('.eve');if(!c.classList.contains('is-open'))setEveOpen(c,true)}
+});
 
 /* ---------- Комментарии (сервер на Mac Mini) ---------- */
 const API='https://meals-api.hoops.homes';
