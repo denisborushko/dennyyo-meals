@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://wsrv.nl" crossorigin>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>html{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
@@ -400,13 +401,16 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 #rgrid .eve:not(.is-open) .ebody h3{font-size:14.5px;line-height:1.25;cursor:pointer}
 #rgrid .eve:not(.is-open) .ien,#rgrid .eve:not(.is-open) .rin{display:none}
 #rgrid .eve:not(.is-open) .eyebrow{font-size:9.5px;letter-spacing:.06em}
-#rgrid .eve.is-open{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,340px) 1fr;border-radius:18px}
+#rgrid .eve.is-open{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,340px) 1fr;border-radius:18px;overflow:visible}
+#rgrid .eve.is-open>.emedia{border-radius:18px 0 0 18px;overflow:hidden}
+@media (max-width:760px){#rgrid .eve.is-open>.emedia{border-radius:18px 18px 0 0}}
 @media (max-width:760px){#rgrid .eve.is-open{grid-template-columns:1fr}}
 #rgrid .eve.is-open video.emedia{width:100%;max-height:620px;aspect-ratio:9/16;object-fit:cover;background:#000;display:block}
 @media (max-width:760px){#rgrid .eve.is-open video.emedia{max-height:70vh}}
 #rgrid .eve.is-open .ethumb{aspect-ratio:4/3}
 #rgrid .eve.is-open .mph{margin:0;border-radius:0}
 .rmac{font:500 12px var(--f-mono);color:var(--ink-2)}
+.rclose{position:sticky;top:64px;z-index:4;align-self:flex-end;margin-bottom:-6px;border:1px solid var(--line);background:var(--surface);box-shadow:0 2px 10px rgba(0,0,0,.12);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;color:var(--ink-2)}
 .rmac b{color:var(--ink);font-weight:600}
 .rbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
 .rbtns button{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:6px 11px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
@@ -429,7 +433,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v4.1</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v4.2</div>
       <h1 id="bagsTitle">Меню на неделю</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -998,7 +1002,7 @@ function li(list){return list.map(([id,a])=>`<li><span>${esc(PM[id].n)}</span><s
 function photos(m){
   const L=[].concat(MIMG[m.id]||[]); if(!L.length)return '';
   const many=L.length>1;
-  return `<div class="mph"><div class="car">${L.map(u=>`<img loading="lazy" src="${u}" alt="" onerror="this.remove()">`).join('')}</div>
+  return `<div class="mph"><div class="car">${L.map(u=>`<img loading="lazy" decoding="async" src="${IMG(u,720)}" data-o="${u}" alt="" onerror="${FB}this.remove()">`).join('')}</div>
     <span class="cred">фото: ${esc(MCRED[m.id]||'')}</span>
     ${many?`<button class="cnav prev" aria-label="Предыдущее фото">‹</button><button class="cnav next" aria-label="Следующее фото">›</button><div class="dots">${L.map((_,i)=>`<i${i?'':' class="on"'}></i>`).join('')}</div><span class="ccount">1/${L.length}</span>`:''}</div>`;
 }
@@ -1015,6 +1019,9 @@ function meTag(m){
   return `<div class="note">Под твою цель: мясо ${d(f.p)} (${Math.round(f.p*100)}%), гарнир ${d(f.c)} (${Math.round(f.c*100)}%)</div>`;
 }
 /* ---------- Единая база рецептов ---------- */
+/* ---------- Картинки: сжатые копии через CDN (wsrv.nl), при сбое — оригинал ---------- */
+const IMG=(u,w)=>/^https?:\/\//.test(u||'')?`https://wsrv.nl/?url=${encodeURIComponent(u)}&w=${w}&output=webp&q=70&we`:u;
+const FB=`if(!this.dataset.f&&this.dataset.o){this.dataset.f=1;this.src=this.dataset.o;return}`;
 const SLOTS=[['b','Завтрак',.25],['l','Обед',.30],['s','Перекус',.15],['d','Ужин',.30]];
 const SLOTN=Object.fromEntries(SLOTS.map(x=>[x[0],x[1]]));
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -1089,7 +1096,7 @@ function autoFill(days){
   days.forEach(i=>['l','d','b','s'].forEach(sl=>{if(slotItems(i,sl).length)return;const r=recsFor(i,sl,1)[0];if(r){const d=planDay(i);d[sl]=[[r.key,1]]}}));
   afterPlan();
 }
-const thumb=(r,cls='')=>r.img?`<img src="${r.img}" alt="" loading="lazy" onerror="this.outerHTML='<span class=ph>${esc(r.ru[0])}</span>'">`:`<span class="ph">${esc(r.ru[0])}</span>`;
+const thumb=(r,cls='')=>r.img?`<img src="${IMG(r.img,144)}" data-o="${r.img}" alt="" loading="lazy" decoding="async" onerror="${FB}this.outerHTML='<span class=ph>${esc(r.ru[0])}</span>'">`:`<span class="ph">${esc(r.ru[0])}</span>`;
 const kp=m=>`${Math.round(m.k)} ккал · Б ${Math.round(m.p)} г`;
 function renderBanner(){
   const el=document.getElementById('menuBanner'); if(!el)return;
@@ -1216,11 +1223,11 @@ const FRAC={0.25:'¼',0.5:'½',0.75:'¾',1.5:'1½',2.5:'2½'};
 function famt(n){if(!n)return '';const r=Math.round(n*4)/4;if(FRAC[r])return FRAC[r];return r>=10?Math.round(r):String(+r.toFixed(2)).replace('.',',')}
 /* ---------- Рецепты: общая сетка ---------- */
 const EOPEN=new Set();
-function stepHtml(x){const t=Array.isArray(x)?x[0]:x, im=Array.isArray(x)?x[1]:null;return `<li>${esc(t)}${im?`<img class="simg" src="${im}" alt="" loading="lazy">`:''}</li>`}
+function stepHtml(x){const t=Array.isArray(x)?x[0]:x, im=Array.isArray(x)?x[1]:null;return `<li>${esc(t)}${im?`<img class="simg" src="${IMG(im,720)}" data-o="${im}" alt="" loading="lazy" decoding="async" onerror="${FB}this.remove()">`:''}</li>`}
 function rmedia(r,open){
   if(open&&r.kind==='e'&&r.o.video)return `<video class="emedia" src="${r.o.video}" poster="${r.o.poster}" controls playsinline preload="metadata"></video>`;
   if(open&&r.kind==='m'&&[].concat(MIMG[r.o.id]||[]).length)return photos(r.o);
-  return `<div class="emedia ethumb" data-eopen>${r.img?`<img src="${r.img}" alt="" loading="lazy" onerror="this.outerHTML='<span class=ph>${esc(r.ru[0])}</span>'">`:`<span class="ph">${esc(r.ru[0])}</span>`}${r.video?'<span class="eplay">▶</span>':''}${r.tag?`<span class="etag">${r.tag}</span>`:''}</div>`;
+  return `<div class="emedia ethumb" data-eopen>${r.img?`<img src="${IMG(r.img,open?800:480)}" data-o="${r.img}" alt="" loading="lazy" decoding="async" onerror="${FB}this.outerHTML='<span class=ph>${esc(r.ru[0])}</span>'">`:`<span class="ph">${esc(r.ru[0])}</span>`}${r.video?'<span class="eplay">▶</span>':''}${r.tag?`<span class="etag">${r.tag}</span>`:''}</div>`;
 }
 function eDetail(r){
   const o=r.o, sv=S.serv[o.id]||o.serves, k=sv/o.serves;
@@ -1258,6 +1265,7 @@ function rCard(r){
   return `<article class="eve${open?' is-open':''}" data-key="${r.key}"${r.kind==='e'?` data-eid="${r.o.id}"`:''}>
     ${rmedia(r,open)}
     <div class="ebody">
+      ${open?'<button class="rclose" data-toggle aria-label="Свернуть рецепт">Свернуть ✕</button>':''}
       <div class="eyebrow">${r.cats.map(c=>SLOTN[c]).join(' · ')} · ${esc(r.time)}</div>
       <h3 data-eopen>${esc(r.ru)}</h3><div class="ien">${esc(r.en)}${src}</div>
       <div class="rmac"><b>${Math.round(m.k)}</b> ккал · Б <b>${Math.round(m.p)}</b> г${r.unit?' · '+r.unit:''}</div>
@@ -1267,7 +1275,7 @@ function rCard(r){
     </div></article>`;
 }
 function refreshCard(key){const c=document.querySelector(`#rgrid .eve[data-key="${CSS.escape(key)}"]`);if(!c)return;const t=document.createElement('div');t.innerHTML=rCard(RKEY[key]);c.replaceWith(t.firstElementChild)}
-function setOpen(key,open){open?EOPEN.add(key):EOPEN.delete(key);refreshCard(key);const c=document.querySelector(`#rgrid .eve[data-key="${CSS.escape(key)}"]`);if(c&&open)requestAnimationFrame(()=>c.scrollIntoView({block:'start',behavior:'smooth'}))}
+function setOpen(key,open){open?EOPEN.add(key):EOPEN.delete(key);refreshCard(key);const c=document.querySelector(`#rgrid .eve[data-key="${CSS.escape(key)}"]`);if(c)requestAnimationFrame(()=>c.scrollIntoView({block:open?'start':'nearest',behavior:'smooth'}))}
 function rList(){
   const f=S.rf||'all', q=(S.rq||'').toLowerCase().trim(), so=S.rs||'fit';
   let L=REC.filter(r=>(f==='all'||(f==='m'?r.kind==='m':f==='v'?r.video:r.cats.includes(f)))&&(!q||(r.ru+' '+r.en).toLowerCase().includes(q)));
