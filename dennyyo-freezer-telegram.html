@@ -433,7 +433,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v4.2</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v4.3</div>
       <h1 id="bagsTitle">Меню на неделю</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -466,7 +466,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
     <div class="rtools">
       <label class="field rsearch"><input id="rsearch" type="search" placeholder="Поиск: курица, паста, блины…" aria-label="Поиск рецептов"></label>
       <label class="rsort">Сортировка <select id="rsort">
-        <option value="fit">Под мою цель</option><option value="p">Больше белка</option><option value="pk">Белок на калорию</option><option value="k-">Меньше калорий</option><option value="k+">Больше калорий</option><option value="az">По названию</option>
+        <option value="fit">Под мою цель</option><option value="t">Быстрее приготовить</option><option value="p">Больше белка</option><option value="pk">Белок на калорию</option><option value="k-">Меньше калорий</option><option value="k+">Больше калорий</option><option value="az">По названию</option>
       </select></label>
     </div>
     <div id="rcount" class="hint"></div>
@@ -1051,6 +1051,9 @@ const KOOK = [{"slug":"butter-chicken","ru":"Баттер чикен","nl":"Butt
 KOOK.forEach(x=>{const id='k-'+x.slug;
   EVENING.push({id,ru:x.ru,en:x.nl+' · Kookmutsjes',src:'https://kookmutsjes.com/recept/'+x.slug+'/',unit:x.unit||'',video:'',poster:x.poster,serves:x.serves||1,time:x.time,method:x.method,kcal:x.kcal,groups:x.groups,steps:x.steps});
   EV_META[id]={c:x.cats||'ld',k:x.k,p:x.p,pp:x.pp||1,unit:x.portion||'',prep:x.prep};});
+/* Правка приёмов пищи: тяжёлое — не на завтрак */
+const CAT_FIX={'e-khychin':'sd','e-potato-bread':'s','e-potato-patties':'s','e-k-aardappeltortilla-met-kip':'ld','e-k-tortilla-de-patatas':'ls','e-k-tuna-cheese-melt-stokbrood':'ls','e-k-volkoren-panbroodjes-met-gehakt':'ls','e-k-quiche-lorraine':'ld'};
+const mins=t=>{t=String(t||'');const h=t.match(/(\d+)\s*ч/),m=[...t.matchAll(/(\d+)\s*мин/g)].pop();return (h?+h[1]*60:0)+(m?+m[1]:0)||999};
 let REC=[], RKEY={};
 function buildRec(){
   REC=[
@@ -1058,6 +1061,7 @@ function buildRec(){
     ...EVENING.map(r=>{const x=EV_META[r.id]||{c:'ld',k:600,p:30};return {key:'e-'+r.id,kind:'e',o:r,ru:r.ru,en:r.en,img:r.poster,cats:x.c.split(''),time:r.time,method:r.method,k:x.k,p:x.p,pp:x.pp||1,unit:x.unit,prep:x.prep,video:!!r.video}}),
     ...IDEAS.map(r=>({key:'i-'+r.id,kind:'i',o:r,ru:r.ru,en:r.en,img:r.img,cats:['l','d'],time:r.t,method:r.m,k:r.k,p:r.p,tag:'Skinnytaste',prep:(r.fl?r.fl+'. ':'')+(r.note||'')}))
   ];
+  REC.forEach(r=>{if(CAT_FIX[r.key])r.cats=CAT_FIX[r.key].split('');r.min=mins(r.time)});
   RKEY=Object.fromEntries(REC.map(r=>[r.key,r]));
 }
 function mac(r){if(r.kind==='m'){const s=stats(r.o);return {k:s.k,p:s.p}}return {k:r.k,p:r.p}}
@@ -1282,7 +1286,7 @@ function rList(){
   const M_=new Map(L.map(r=>[r.key,mac(r)]));
   const sl=['b','l','s','d'].includes(f)?f:null;
   const fitS=r=>{if(sl)return score(r,sl,null,{});return Math.min(...r.cats.map(c=>score(r,c,null,{})))};
-  const cmp={fit:(a,b)=>fitS(a)-fitS(b),p:(a,b)=>M_.get(b.key).p-M_.get(a.key).p,pk:(a,b)=>M_.get(b.key).p/M_.get(b.key).k-M_.get(a.key).p/M_.get(a.key).k,'k-':(a,b)=>M_.get(a.key).k-M_.get(b.key).k,'k+':(a,b)=>M_.get(b.key).k-M_.get(a.key).k,az:(a,b)=>a.ru.localeCompare(b.ru,'ru')}[so];
+  const cmp={fit:(a,b)=>fitS(a)-fitS(b),p:(a,b)=>M_.get(b.key).p-M_.get(a.key).p,pk:(a,b)=>M_.get(b.key).p/M_.get(b.key).k-M_.get(a.key).p/M_.get(a.key).k,'k-':(a,b)=>M_.get(a.key).k-M_.get(b.key).k,'k+':(a,b)=>M_.get(b.key).k-M_.get(a.key).k,az:(a,b)=>a.ru.localeCompare(b.ru,'ru'),t:(a,b)=>a.min-b.min||M_.get(b.key).p-M_.get(a.key).p}[so];
   return L.sort(cmp);
 }
 function renderRecipes(){
