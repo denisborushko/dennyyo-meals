@@ -406,6 +406,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 @media (max-width:760px){#rgrid .eve.is-open>.emedia{border-radius:18px 18px 0 0}}
 @media (max-width:760px){#rgrid .eve.is-open{grid-template-columns:1fr}}
 
+.rempty{grid-column:1/-1;text-align:center;padding:24px 8px;display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--ink-2)}
 .myadd{width:100%;margin:2px 0 10px;padding:11px 14px}
 .myf{display:flex;flex-direction:column;gap:5px}
 .myf>span{font:500 10.5px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
@@ -448,7 +449,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v4.8</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v4.9</div>
       <h1 id="bagsTitle">Меню на неделю</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -907,7 +908,7 @@ function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function applySaved(pr,st){
   if(pr){S.prices=pr.prices||{};S.packs=pr.packs||{}}
-  if(st){['got','home','prof','serv'].forEach(k=>{if(st[k])S[k]=Object.assign(S[k],st[k])});if(Array.isArray(st.plan))S.plan=st.plan.concat([{},{},{},{},{},{},{}]).slice(0,7);if(st.day!=null)S.day=st.day;if(st.rf)S.rf=st.rf;if(st.rs)S.rs=st.rs;if(st.tab)S.tab=st.tab;if(st.filter)S.filter=st.filter}
+  if(st){['got','home','prof','serv'].forEach(k=>{if(st[k])S[k]=Object.assign(S[k],st[k])});if(Array.isArray(st.plan))S.plan=st.plan.concat([{},{},{},{},{},{},{}]).slice(0,7);if(st.day!=null)S.day=st.day;if(st.rf&&st.rf!=='my')S.rf=st.rf;if(st.rs)S.rs=st.rs;if(st.tab)S.tab=st.tab;if(st.filter)S.filter=st.filter}
 }
 applySaved(lsGet(KEY_P),lsGet(KEY_S));
 let saveT;
@@ -1340,7 +1341,9 @@ function renderRecipes(){
   const inp=document.getElementById('rsearch');if(document.activeElement!==inp)inp.value=S.rq||'';
   const L=rList();
   document.getElementById('rcount').textContent=`${L.length} ${plural(L.length,'рецепт','рецепта','рецептов')}`+((S.rs||'fit')==='fit'?(targets()?' · сверху то, что лучше всего подходит под твою цель':' · заполни профиль, чтобы сортировать под твою цель'):'');
-  document.getElementById('rgrid').innerHTML=L.map(rCard).join('')||'<p class="hint">Ничего не нашёл.</p>';
+  const FN={b:'Завтраки',l:'Обеды',s:'Перекусы',d:'Ужины',m:'Заготовки в пакет',v:'С видео',my:'Мои'}[S.rf||'all'];
+  const empty=`<div class="rempty"><p>${S.rf==='my'&&!S.rq?'Своих рецептов пока нет. Добавь первый кнопкой выше.':'Ничего не нашёл'+(FN?` в разделе «${FN}»`:'')+(S.rq?` по запросу «${esc(S.rq)}»`:'')+'.'}</p><button class="btn primary" data-rall>Показать все ${REC.length} рецептов</button></div>`;
+  document.getElementById('rgrid').innerHTML=L.map(rCard).join('')||empty;
 }
 function renderRecBadge(){const el=document.getElementById('recBadge');if(el)el.textContent=REC.length}
 
@@ -1540,6 +1543,7 @@ gridEl.addEventListener('click',e=>{
     const v=Math.max(1,Math.min(40,(S.serv[id]||r.serves)+ +sv.dataset.sv));S.serv[id]=v;const k=v/r.serves;
     card.querySelector('.serv output').textContent=v;card.querySelectorAll('[data-a]').forEach(el=>{el.textContent=famt(+el.dataset.a*k)+' '+el.dataset.u});save();return}
   const ex=t.closest('[data-ext]'); if(ex){const W=window.Telegram&&Telegram.WebApp;if(W&&W.openLink&&W.initData){e.preventDefault();W.openLink(ex.href)}return}
+  if(t.closest('[data-rall]')){S.rf='all';S.rq='';save();renderRecipes();return}
   const me=t.closest('[data-myedit]'); if(me){openMyForm(me.dataset.myedit);return}
   const md=t.closest('[data-mydel]'); if(md){delMy(md.dataset.mydel,md);return}
   const ad=t.closest('[data-add]'); if(ad){openAdd(ad.dataset.add);return}
