@@ -405,6 +405,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 #rgrid .eve.is-open>.emedia{border-radius:18px 0 0 18px;overflow:hidden}
 @media (max-width:760px){#rgrid .eve.is-open>.emedia{border-radius:18px 18px 0 0}}
 @media (max-width:760px){#rgrid .eve.is-open{grid-template-columns:1fr}}
+.ihit{font-size:12px;color:var(--accent,#2a7);margin:2px 0 4px;line-height:1.3}
 #rgrid .eve.is-open .eyt{position:relative;width:100%;max-height:620px;aspect-ratio:9/16;background:#000}
 #rgrid .eve.is-open .eyt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .eytlink{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;text-decoration:none}
@@ -437,7 +438,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v4.6</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v4.7</div>
       <h1 id="bagsTitle">Меню на неделю</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -468,7 +469,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
       <button data-f="all">Все</button><button data-f="b">Завтраки</button><button data-f="l">Обеды</button><button data-f="s">Перекусы</button><button data-f="d">Ужины</button><button data-f="m">Заготовки в пакет</button><button data-f="v">С видео</button>
     </div>
     <div class="rtools">
-      <label class="field rsearch"><input id="rsearch" type="search" placeholder="Поиск: курица, паста, блины…" aria-label="Поиск рецептов"></label>
+      <label class="field rsearch"><input id="rsearch" type="search" placeholder="Блюдо или ингредиент: фарш, сыр, рис…" aria-label="Поиск рецептов"></label>
       <label class="rsort">Сортировка <select id="rsort">
         <option value="fit">Под мою цель</option><option value="t">Быстрее приготовить</option><option value="p">Больше белка</option><option value="pk">Белок на калорию</option><option value="k-">Меньше калорий</option><option value="k+">Больше калорий</option><option value="az">По названию</option>
       </select></label>
@@ -1071,6 +1072,12 @@ function buildRec(){
     ...IDEAS.map(r=>({key:'i-'+r.id,kind:'i',o:r,ru:r.ru,en:r.en,img:r.img,cats:['l','d'],time:r.t,method:r.m,k:r.k,p:r.p,tag:'Skinnytaste',prep:(r.fl?r.fl+'. ':'')+(r.note||'')}))
   ];
   REC.forEach(r=>{if(CAT_FIX[r.key])r.cats=CAT_FIX[r.key].split('');r.min=mins(r.time)});
+  const PN=Object.fromEntries(P.map(p=>[p.id,p.n]));
+  REC.forEach(r=>{let L=[];
+    if(r.kind==='m')L=[...(r.o.bag||[]),...(r.o.side||[]),...(r.o.finish||[])].map(x=>PN[x[0]]||x[0]);
+    else if(r.kind==='e')L=(r.o.groups||[]).flatMap(g=>(g.items||[]).map(it=>Array.isArray(it)?it[0]:it));
+    else L=String(r.o.ing||'').split(/,\s*/);
+    r.ings=L.filter(Boolean).map(x=>String(x).replace(/\s+/g,' ').trim());r.ingl=r.ings.map(x=>x.toLowerCase().replace(/ё/g,'е'))});
   RKEY=Object.fromEntries(REC.map(r=>[r.key,r]));
 }
 function mac(r){if(r.kind==='m'){const s=stats(r.o);return {k:s.k,p:s.p}}return {k:r.k,p:r.p}}
@@ -1272,6 +1279,21 @@ function iDetail(r){
     <a class="src" href="${o.url}" target="_blank" rel="noopener">Полный рецепт с граммовкой на Skinnytaste ↗</a>`;
 }
 const CKEY=r=>r.kind==='m'?'m-'+pad(r.o.id):r.kind==='e'?'ev-'+r.o.id:'i-'+r.o.id;
+
+/* Поиск по названию и ингредиентам */
+const QSYN={'курица':['кур'],'курицы':['кур'],'куриц':['кур'],'курятина':['кур'],'говядина':['говя','бифштекс','стейк'],'мясо':['говя','фарш','кур','свин','баран','стейк'],'фарш':['фарш'],'свинина':['свин'],'рыба':['рыб','треск','лосос','тунец','тунц','семг','форел'],
+ 'сыр':['сыр','моцарел','чеддер','пармезан','фета','гауд','рикотт','маскарпоне'],'картошка':['картоф','картош'],'картофель':['картоф','картош'],'яйцо':['яйц','яиц'],'яйца':['яйц','яиц'],'яйцами':['яйц','яиц'],
+ 'креветки':['кревет'],'грибы':['гриб','шампиньон'],'помидоры':['томат','помидор','черри'],'помидор':['томат','помидор','черри'],'томаты':['томат','помидор','черри'],'лук':['лук'],'зелень':['петруш','кинз','укроп','зелен'],
+ 'рис':['=рис','=риса','=рисом','басмати','жасмин'],'паста':['паст','спагетти','пенне','ригатони','фузилли','орзо','лапш','макарон'],'макароны':['паст','спагетти','пенне','ригатони','фузилли','орзо','макарон'],'лапша':['лапш','удон','вермишел'],'тесто':['мук'],'молоко':['молок'],'сливки':['сливк'],'йогурт':['йогурт'],'творог':['творог'],'авокадо':['авокадо'],'фасоль':['фасол'],'нут':['нут'],'кукуруза':['кукуруз'],'перец':['перец','перц']};
+const qStem=w=>w.length>4?w.replace(/(ами|ями|ов|ев|ей|ой|ий|ый|ая|ое|ые|ие|ам|ям|ах|ях|а|я|ы|и|у|ю|е|о|ь)$/,''):w;
+function qTerms(q){return q.toLowerCase().replace(/ё/g,'е').split(/[,;+]+|\s+и\s+|\s+/).map(x=>x.trim()).filter(x=>x.length>1).map(w=>({w,alts:QSYN[w]||(/^кур/.test(w)?['кур']:/^говя/.test(w)?['говя']:[qStem(w)])}))}
+const qW=x=>x.split(/[^a-zа-я0-9]+/).filter(Boolean);
+const qHas=(words,a)=>a[0]==='='?words.includes(a.slice(1)):words.some(w=>w.startsWith(a));
+function qMatch(r,QT){const hit=new Set();const tw=qW((r.ru+' '+r.en).toLowerCase().replace(/ё/g,'е'));
+  if(!r.ingw)r.ingw=r.ingl.map(qW);
+  const ok=QT.every(t=>{const al=['='+t.w,...t.alts];if(al.some(a=>qHas(tw,a)))return true;
+    const i=r.ingw.findIndex(ws=>al.some(a=>qHas(ws,a)));if(i<0)return false;hit.add(r.ings[i]);return true});
+  r._hit=hit.size?[...hit].join(', '):null;return ok}
 function rCard(r){
   const open=EOPEN.has(r.key), m=mac(r), w=whereIs(r.key);
   const src=r.kind==='e'&&r.o.src?` · <a href="${r.o.src}" target="_blank" rel="noopener">источник</a>`:'';
@@ -1282,6 +1304,7 @@ function rCard(r){
       ${open?'<button class="rclose" data-toggle aria-label="Свернуть рецепт">Свернуть ✕</button>':''}
       <div class="eyebrow">${r.cats.map(c=>SLOTN[c]).join(' · ')} · ${esc(r.time)}</div>
       <h3 data-eopen>${esc(r.ru)}</h3><div class="ien">${esc(r.en)}${src}</div>
+      ${r._hit&&S.rq?`<div class="ihit">🔎 в составе: ${esc(r._hit)}</div>`:''}
       <div class="rmac"><b>${Math.round(m.k)}</b> ккал · Б <b>${Math.round(m.p)}</b> г${r.unit?' · '+r.unit:''}</div>
       ${w.length?`<div class="inmenu">в меню: ${[...new Set(w.map(x=>DAYS[x[0]]))].join(', ')}</div>`:''}
       ${open?`<div class="rin erec-in">${det}${r.prep?`<div class="prepnote"><b>Заранее:</b> ${esc(r.prep)}</div>`:''}${cbtn(CKEY(r),r.ru)}</div>`:''}
@@ -1292,7 +1315,8 @@ function refreshCard(key){const c=document.querySelector(`#rgrid .eve[data-key="
 function setOpen(key,open){open?EOPEN.add(key):EOPEN.delete(key);refreshCard(key);const c=document.querySelector(`#rgrid .eve[data-key="${CSS.escape(key)}"]`);if(c)requestAnimationFrame(()=>c.scrollIntoView({block:open?'start':'nearest',behavior:'smooth'}))}
 function rList(){
   const f=S.rf||'all', q=(S.rq||'').toLowerCase().trim(), so=S.rs||'fit';
-  let L=REC.filter(r=>(f==='all'||(f==='m'?r.kind==='m':f==='v'?r.video:r.cats.includes(f)))&&(!q||(r.ru+' '+r.en).toLowerCase().includes(q)));
+  const QT=qTerms(q);
+  let L=REC.filter(r=>(f==='all'||(f==='m'?r.kind==='m':f==='v'?r.video:r.cats.includes(f)))&&(!QT.length||qMatch(r,QT)));
   const M_=new Map(L.map(r=>[r.key,mac(r)]));
   const sl=['b','l','s','d'].includes(f)?f:null;
   const fitS=r=>{if(sl)return score(r,sl,null,{});return Math.min(...r.cats.map(c=>score(r,c,null,{})))};
