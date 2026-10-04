@@ -405,6 +405,16 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 #rgrid .eve.is-open>.emedia{border-radius:18px 0 0 18px;overflow:hidden}
 @media (max-width:760px){#rgrid .eve.is-open>.emedia{border-radius:18px 18px 0 0}}
 @media (max-width:760px){#rgrid .eve.is-open{grid-template-columns:1fr}}
+
+.myadd{width:100%;margin:2px 0 10px;padding:11px 14px}
+.myf{display:flex;flex-direction:column;gap:5px}
+.myf>span{font:500 10.5px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.myf input:not([type=file]),.myf textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:10px 12px;font:15px var(--f-body);resize:vertical}
+.myf input:focus,.myf textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.myrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.myimg{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.myimg img{width:84px;height:84px;object-fit:cover;border-radius:10px;display:block}
+.mybtns{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
 .ihit{font-size:12px;color:var(--accent,#2a7);margin:2px 0 4px;line-height:1.3}
 #rgrid .eve.is-open .eyt{position:relative;width:100%;max-height:620px;aspect-ratio:9/16;background:#000}
 #rgrid .eve.is-open .eyt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -438,7 +448,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 <div class="wrap">
   <header class="hero">
     <div>
-      <div class="eyebrow">Dennyyo · Freezer Meals · v4.7</div>
+      <div class="eyebrow">Dennyyo · Freezer Meals · v4.8</div>
       <h1 id="bagsTitle">Меню на неделю</h1>
       <p id="heroSub">Один раз закупился, два часа на кухне, потом каждый день 10–18 минут на аэрогриле или сковороде.</p>
     </div>
@@ -466,7 +476,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
 
   <section role="tabpanel" id="recipes" aria-labelledby="t-recipes" hidden>
     <div class="filters" id="rfilters">
-      <button data-f="all">Все</button><button data-f="b">Завтраки</button><button data-f="l">Обеды</button><button data-f="s">Перекусы</button><button data-f="d">Ужины</button><button data-f="m">Заготовки в пакет</button><button data-f="v">С видео</button>
+      <button data-f="all">Все</button><button data-f="b">Завтраки</button><button data-f="l">Обеды</button><button data-f="s">Перекусы</button><button data-f="d">Ужины</button><button data-f="m">Заготовки в пакет</button><button data-f="v">С видео</button><button data-f="my">Мои</button>
     </div>
     <div class="rtools">
       <label class="field rsearch"><input id="rsearch" type="search" placeholder="Блюдо или ингредиент: фарш, сыр, рис…" aria-label="Поиск рецептов"></label>
@@ -474,6 +484,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:1
         <option value="fit">Под мою цель</option><option value="t">Быстрее приготовить</option><option value="p">Больше белка</option><option value="pk">Белок на калорию</option><option value="k-">Меньше калорий</option><option value="k+">Больше калорий</option><option value="az">По названию</option>
       </select></label>
     </div>
+    <button class="btn primary myadd" id="myAdd">+ Добавить свой рецепт</button>
     <div id="rcount" class="hint"></div>
     <div id="rgrid"></div>
   </section>
@@ -740,7 +751,7 @@ const M = [
   steps:['Аэрогриль 180°C: лосось 8–12 мин, цукини и брокколи рядом.','Картофельные дольки из морозилки: 200°C 18–20 мин, сначала их, потом лосось.','На тарелку: фета, помидор, оливки, лимон.']},
 ];
 const METHOD = {air:'Аэрогриль',pan:'Сковорода'};
-const MIMG = {"1": "https://cookonceeatlater.com/wp-content/uploads/2026/07/Honey-Garlic-Chicken-Close-up-scaled.jpeg", "4": "https://lovefoodfeed.com/wp-content/uploads/2026/06/Chicken-fajitas-freezer-meal-prep-1200-12.jpg", "5": "https://freezermeals101.com/wp-content/uploads/2025/06/Chicken-Shawarma-square.png", "6": ["https://images.themodernproper.com/production/posts/2020/Greek-Chicken-Freezer-Meal-25.jpg?w=1200&h=630&q=82&fm=jpg&fit=crop&dm=1693943328&s=ba03912921e3c9ab4e2bdcc877bb6fcb", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-10.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-11.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-9.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-1.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-2.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-4.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-5.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-6.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-8.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-13.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-1-1.jpg"], "9": "https://www.ihearteating.com/wp-content/uploads/2021/12/crock-pot-balsamic-beef-12-1200.jpg", "11": "https://myfamilydinner.com/wp-content/uploads/2024/05/LemonHerbChicken-12-scaled.jpg", "12": ["https://static.wixstatic.com/media/9d379a_6e1c0d0ecc414a169efabcd7c61a176d~mv2.png/v1/fill/w_2000,h_1143,al_c/Mexican%20Beef%20Bowl-2.png", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-6.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-7.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-1.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-2.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-3.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-4.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-5.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-1-1.jpg"], "13": "https://freezermeals101.com/wp-content/uploads/2024/04/Teriyaki-Salmon-square.jpeg", "2": "https://beyond-meat-cms-production.s3.us-west-2.amazonaws.com/28b0fb63-31c0-4734-ac01-e37ff57a2ffa.jpg", "10": ["https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-9-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-7-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-1-2.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-2-2.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-3-2.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-4-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-6-1.jpg", "https://eatthegains.com/wp-content/uploads/2023/01/Thai-Coconut-Chicken-Curry-1.jpg"], "8": ["https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-15.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-1-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-3.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-5.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-8.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-11.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-12.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-13.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-14.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-16.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-18.jpg"], "3": "https://carmyy.com/wp-content/uploads/2025/09/teriyaki-pineapple-chicken-bowl-15.jpg"};
+const MIMG = {"1": "https://cookonceeatlater.com/wp-content/uploads/2026/07/Honey-Garlic-Chicken-Close-up-scaled.jpeg", "4": "https://lovefoodfeed.com/wp-content/uploads/2026/06/Chicken-fajitas-freezer-meal-prep-1200-12.jpg", "5": "https://freezermeals101.com/wp-content/uploads/2025/06/Chicken-Shawarma-square.png", "6": ["https://images.themodernproper.com/production/posts/2020/Greek-Chicken-Freezer-Meal-25.jpg?w=1200&h=630&q=82&fm=jpg&fit=crop&dm=1693943328&s=ba03912921e3c9ab4e2bdcc877bb6fcb", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-10.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-11.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-9.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-1.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-2.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-4.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-5.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-6.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-8.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-13.jpg", "https://eatthegains.com/wp-content/uploads/2024/03/Greek-Sheet-Pan-Chicken-1-1.jpg"], "9": "https://www.ihearteating.com/wp-content/uploads/2021/12/crock-pot-balsamic-beef-12-1200.jpg", "11": "https://myfamilydinner.com/wp-content/uploads/2024/05/LemonHerbChicken-12-scaled.jpg", "12": ["https://static.wixstatic.com/media/9d379a_6e1c0d0ecc414a169efabcd7c61a176d~mv2.png/v1/fill/w_2000,h_1143,al_c/Mexican%20Beef%20Bowl-2.png", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-6.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-7.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-1.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-2.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-3.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-4.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-5.jpg", "https://eatthegains.com/wp-content/uploads/2024/05/Taco-Bowls-1-1.jpg"], "13": "https://freezermeals101.com/wp-content/uploads/2024/04/Teriyaki-Salmon-square.jpeg", "2": "https://beyond-meat-cms-production.s3.us-west-2.amazonaws.com/28b0fb63-31c0-4734-ac01-e37ff57a2ffa.jpg", "10": ["https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-9-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-7-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-1-2.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-2-2.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-3-2.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-4-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/03/Thai-Coconut-Chicken-Curry-6-1.jpg", "https://eatthegains.com/wp-content/uploads/2023/01/Thai-Coconut-Chicken-Curry-1.jpg"], "8": ["https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-15.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-1-1.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-3.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-5.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-8.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-11.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-12.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-13.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-14.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-16.jpg", "https://eatthegains.com/wp-content/uploads/2019/09/Chicken-Burrito-Bowl-18.jpg"], "3": "https://carmyy.com/wp-content/uploads/2025/09/teriyaki-pineapple-chicken-bowl-15.jpg", "7": "https://athletelunchbox.com/wp-content/uploads/2023/07/6-_DSF0614-e1766034351246.jpg", "14": "https://www.realfoodwithsarah.com/wp-content/uploads/2024/04/mediterranean-baked-salmon-8.jpg"};
 const MCRED = {"1": "Cook Once Eat Later", "4": "Love Food Feed", "5": "Freezer Meals 101", "6": "The Modern Proper, Eat the Gains", "9": "I Heart Eating", "11": "My Family Dinner", "12": "Supabarn, Eat the Gains", "13": "Freezer Meals 101", "2": "Beyond Meat", "10": "Eat the Gains", "8": "Eat the Gains", "3": "Carmy"};
 const EVENING = [
  {id:'steak-mushroom',ru:'Стейк в сливочно-грибном соусе с картофелем-гармошкой',en:'Steak with Creamy Spicy Mushroom Sauce & Parmesan Hasselback Potatoes',
@@ -1068,7 +1079,7 @@ let REC=[], RKEY={};
 function buildRec(){
   REC=[
     ...M.map(m=>({key:'m'+m.id,kind:'m',o:m,ru:m.ru,en:m.en,img:[].concat(MIMG[m.id]||[])[0]||'',cats:['l','d'],time:m.mode,method:METHOD[m.method],tag:'заготовка'})),
-    ...EVENING.map(r=>{const x=EV_META[r.id]||{c:'ld',k:600,p:30};return {key:'e-'+r.id,kind:'e',o:r,ru:r.ru,en:r.en,img:r.poster,cats:x.c.split(''),time:r.time,method:r.method,k:x.k,p:x.p,pp:x.pp||1,unit:x.unit,prep:x.prep,video:!!(r.video||r.yt)}}),
+    ...EVENING.map(r=>{const x=EV_META[r.id]||{c:'ld',k:600,p:30};return {key:'e-'+r.id,kind:'e',o:r,ru:r.ru,en:r.en,img:r.poster,cats:x.c.split(''),time:r.time,method:r.method,k:x.k,p:x.p,pp:x.pp||1,unit:x.unit,prep:x.prep,video:!!(r.video||r.yt),my:!!r.my}}),
     ...IDEAS.map(r=>({key:'i-'+r.id,kind:'i',o:r,ru:r.ru,en:r.en,img:r.img,cats:['l','d'],time:r.t,method:r.m,k:r.k,p:r.p,tag:'Skinnytaste',prep:(r.fl?r.fl+'. ':'')+(r.note||'')}))
   ];
   REC.forEach(r=>{if(CAT_FIX[r.key])r.cats=CAT_FIX[r.key].split('');r.min=mins(r.time)});
@@ -1256,7 +1267,7 @@ function eDetail(r){
     <div class="serv"><span>${esc(o.unit||'Порций')}</span><span class="stepper"><button data-sv="-1" aria-label="Меньше">−</button><output>${sv}</output><button data-sv="1" aria-label="Больше">+</button></span></div>
     <div class="ecols">${o.groups.map(g=>`<div class="egrp"><h4>${esc(g.n)}</h4><ul>${g.items.map(([n,a,u])=>`<li><span>${esc(n)}</span><span${a?` data-a="${a}" data-u="${esc(u)}"`:''}>${a?famt(a*k)+' ':''}${esc(u)}</span></li>`).join('')}</ul></div>`).join('')}</div>
     <div class="steps-t">Как готовить</div>
-    ${o.steps.map(g=>`<div class="steps-h">${esc(g.n)}</div><ol class="steps">${g.s.map(stepHtml).join('')}</ol>`).join('')}`;
+    ${o.steps.map(g=>`<div class="steps-h">${esc(g.n)}</div><ol class="steps">${g.s.map(stepHtml).join('')}</ol>`).join('')}${o.my?`<div class="btns mybtns"><button class="btn" data-myedit="${o.my}">✏️ Изменить</button><button class="btn danger" data-mydel="${o.my}">Удалить</button></div>`:''}`;
 }
 function mDetail(r){
   const m=r.o,s=stats(m);
@@ -1307,7 +1318,7 @@ function rCard(r){
       ${r._hit&&S.rq?`<div class="ihit">🔎 в составе: ${esc(r._hit)}</div>`:''}
       <div class="rmac"><b>${Math.round(m.k)}</b> ккал · Б <b>${Math.round(m.p)}</b> г${r.unit?' · '+r.unit:''}</div>
       ${w.length?`<div class="inmenu">в меню: ${[...new Set(w.map(x=>DAYS[x[0]]))].join(', ')}</div>`:''}
-      ${open?`<div class="rin erec-in">${det}${r.prep?`<div class="prepnote"><b>Заранее:</b> ${esc(r.prep)}</div>`:''}${cbtn(CKEY(r),r.ru)}</div>`:''}
+      ${open?`<div class="rin erec-in">${det}${r.prep?`<div class="prepnote"><b>Заранее:</b> ${esc(r.prep)}</div>`:''}${r.my?'':cbtn(CKEY(r),r.ru)}</div>`:''}
       <div class="rbtns"><button data-toggle>${open?'Свернуть':'Рецепт'}</button><button class="add${w.length?' done':''}" data-add="${r.key}">${w.length?'+ Ещё в меню':'+ В меню'}</button></div>
     </div></article>`;
 }
@@ -1316,7 +1327,7 @@ function setOpen(key,open){open?EOPEN.add(key):EOPEN.delete(key);refreshCard(key
 function rList(){
   const f=S.rf||'all', q=(S.rq||'').toLowerCase().trim(), so=S.rs||'fit';
   const QT=qTerms(q);
-  let L=REC.filter(r=>(f==='all'||(f==='m'?r.kind==='m':f==='v'?r.video:r.cats.includes(f)))&&(!QT.length||qMatch(r,QT)));
+  let L=REC.filter(r=>(f==='all'||(f==='m'?r.kind==='m':f==='v'?r.video:f==='my'?r.my:r.cats.includes(f)))&&(!QT.length||qMatch(r,QT)));
   const M_=new Map(L.map(r=>[r.key,mac(r)]));
   const sl=['b','l','s','d'].includes(f)?f:null;
   const fitS=r=>{if(sl)return score(r,sl,null,{});return Math.min(...r.cats.map(c=>score(r,c,null,{})))};
@@ -1521,6 +1532,7 @@ document.getElementById('menu').addEventListener('click',e=>{const b=e.target.cl
   b.dataset.armed=1;b.textContent='Точно? Нажми ещё раз';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent='Очистить '+DAYS[+b.dataset.clearday]}},3000)});
 document.getElementById('rfilters').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.rf=b.dataset.f;renderRecipes();save()});
 document.getElementById('rsort').addEventListener('change',e=>{S.rs=e.target.value;renderRecipes();save()});
+document.getElementById('myAdd').addEventListener('click',()=>openMyForm());
 let rqT;document.getElementById('rsearch').addEventListener('input',e=>{S.rq=e.target.value;clearTimeout(rqT);rqT=setTimeout(renderRecipes,150)});
 gridEl.addEventListener('click',e=>{
   const t=e.target;
@@ -1528,6 +1540,8 @@ gridEl.addEventListener('click',e=>{
     const v=Math.max(1,Math.min(40,(S.serv[id]||r.serves)+ +sv.dataset.sv));S.serv[id]=v;const k=v/r.serves;
     card.querySelector('.serv output').textContent=v;card.querySelectorAll('[data-a]').forEach(el=>{el.textContent=famt(+el.dataset.a*k)+' '+el.dataset.u});save();return}
   const ex=t.closest('[data-ext]'); if(ex){const W=window.Telegram&&Telegram.WebApp;if(W&&W.openLink&&W.initData){e.preventDefault();W.openLink(ex.href)}return}
+  const me=t.closest('[data-myedit]'); if(me){openMyForm(me.dataset.myedit);return}
+  const md=t.closest('[data-mydel]'); if(md){delMy(md.dataset.mydel,md);return}
   const ad=t.closest('[data-add]'); if(ad){openAdd(ad.dataset.add);return}
   const tg=t.closest('[data-toggle]'); if(tg){const c=tg.closest('.eve');setOpen(c.dataset.key,!c.classList.contains('is-open'));return}
   const th=t.closest('[data-eopen]'); if(th){const c=th.closest('.eve');if(!c.classList.contains('is-open'))setOpen(c.dataset.key,true)}
@@ -1620,6 +1634,7 @@ function initTelegram(){
     const nm=document.getElementById('profName'); if(nm&&u.first_name)nm.textContent=u.first_name+(u.last_name?' '+u.last_name:'');
   }
   if(tg.isVersionAtLeast&&tg.isVersionAtLeast('6.9')&&tg.CloudStorage){
+    loadMyCloud(tg.CloudStorage);
     tg.CloudStorage.getItems([KEY_P,KEY_S],(err,v)=>{
       if(err||!v)return;
       try{applySaved(v[KEY_P]?JSON.parse(v[KEY_P]):null,v[KEY_S]?JSON.parse(v[KEY_S]):null);renderAll()}catch(e){}
@@ -1633,7 +1648,89 @@ function initTelegram(){
   const s=document.createElement('script');s.src='https://telegram.org/js/telegram-web-app.js';s.onload=initTelegram;document.head.appendChild(s);
 })();
 
-buildRec();
+
+/* ---------- Свои рецепты ---------- */
+const KEY_MY='fms1_my', KEY_MYIMG='fms1_myimg';
+let MY=(lsGet(KEY_MY)||{}).list||[];
+let MYTS=(lsGet(KEY_MY)||{}).ts||0;
+const MYIMG=lsGet(KEY_MYIMG)||{};
+const UNITS='г|кг|мл|л|шт|ст\\.? ?л\\.?|ч\\.? ?л\\.?|зубч\\.?|зубчика|зубчиков|щепотка|стакан[а]?|упак\\.?|банка|пучок';
+function parseIng(line){line=line.replace(/^[-•*\s]+/,'').trim();if(!line)return null;
+  const m=line.match(new RegExp('^(.*?)[\\s:—–-]+(\\d+(?:[.,]\\d+)?(?:\\s*[-–]\\s*\\d+)?)\\s*('+UNITS+')?\\.?\\s*$','i'));
+  if(m&&m[1].trim()){const a=parseFloat(m[2].replace(',','.'));return [m[1].trim(),/[-–]/.test(m[2])?0:a,/[-–]/.test(m[2])?m[2]+' '+(m[3]||''):(m[3]||'')]}
+  return [line,0,''];}
+function parseSteps(txt){const G=[];let cur=null;
+  txt.split('\n').map(x=>x.trim()).filter(Boolean).forEach(l=>{l=l.replace(/^\d+[.)]\s*/,'');
+    if(/:$/.test(l)&&l.length<40){cur={n:l.slice(0,-1),s:[]};G.push(cur);return}
+    if(!cur){cur={n:'Приготовление',s:[]};G.push(cur)}cur.s.push(l)});
+  return G.filter(g=>g.s.length)}
+function myToEv(x){const id='my-'+x.id, yt=(String(x.link||'').match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/)||[])[1]||'';
+  const items=String(x.ing||'').split('\n').map(parseIng).filter(Boolean);
+  return {ev:{id,my:x.id,ru:x.ru||'Мой рецепт',en:'Мой рецепт',src:x.link&&!yt?x.link:'',unit:'',video:'',yt,poster:MYIMG[x.id]||'',serves:+x.serves||1,time:x.time||'',method:x.method||'',
+      kcal:(x.k?`≈${x.k} ккал · Б ≈${x.p||0} г на порцию`:'Калории не указаны')+(x.note?'. '+x.note:''),
+      groups:[{n:'Ингредиенты',items:items.length?items:[['—',0,'']]}],steps:parseSteps(x.steps||'')},
+    meta:{c:x.cats||'ld',k:+x.k||0,p:+x.p||0,pp:1,unit:'',prep:x.prep||''}}}
+function applyMy(){
+  for(let i=EVENING.length-1;i>=0;i--)if(EVENING[i].my)EVENING.splice(i,1);
+  Object.keys(EV_META).forEach(k=>{if(k.startsWith('my-'))delete EV_META[k]});
+  MY.forEach(x=>{const {ev,meta}=myToEv(x);EVENING.push(ev);EV_META[ev.id]=meta});
+  buildRec();
+}
+function saveMy(){MYTS=Date.now();lsSet(KEY_MY,{ts:MYTS,list:MY});
+  const cs=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.CloudStorage;
+  if(cs&&Telegram.WebApp.isVersionAtLeast&&Telegram.WebApp.isVersionAtLeast('6.9')){
+    try{const str=JSON.stringify({ts:MYTS,list:MY}),parts=[];for(let i=0;i<str.length;i+=3800)parts.push(str.slice(i,i+3800));
+      parts.forEach((p,i)=>cs.setItem(KEY_MY+'_'+i,p));cs.setItem(KEY_MY+'_n',String(parts.length))}catch(e){}}}
+function loadMyCloud(cs){
+  cs.getItem(KEY_MY+'_n',(e,n)=>{n=+n||0;if(e||!n)return;const keys=[...Array(n).keys()].map(i=>KEY_MY+'_'+i);
+    cs.getItems(keys,(e2,v)=>{if(e2||!v)return;try{const o=JSON.parse(keys.map(k=>v[k]||'').join(''));
+      if(o&&Array.isArray(o.list)&&(o.ts||0)>MYTS){MY=o.list;MYTS=o.ts;lsSet(KEY_MY,o);applyMy();renderAll()}}catch(err){}})})}
+function shrinkImg(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{
+  const W=640,sc=Math.min(1,W/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);
+  c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.72))};im.onerror=rej;im.src=fr.result};fr.onerror=rej;fr.readAsDataURL(file)})}
+function openMyForm(mid){
+  const x=MY.find(y=>y.id===mid)||{cats:'ld',serves:2};let img=mid?MYIMG[mid]||'':'';
+  const cats=new Set((x.cats||'').split(''));
+  const F=(id,lab,val,ph,type)=>`<label class="myf"><span>${lab}</span><input id="${id}" ${type?`type="${type}" inputmode="numeric"`:''} value="${esc(val??'')}" placeholder="${esc(ph||'')}"></label>`;
+  const T=(id,lab,val,ph,rows)=>`<label class="myf"><span>${lab}</span><textarea id="${id}" rows="${rows||5}" placeholder="${esc(ph||'')}">${esc(val||'')}</textarea></label>`;
+  const bg=sheet(mid?'Изменить рецепт':'Свой рецепт',`
+    ${F('my_ru','Название *',x.ru,'Например: Плов с курицей')}
+    <div class="myf"><span>Приём пищи</span><div class="seg slotsel" id="my_cats">${SLOTS.map(([v,n])=>`<button type="button" data-v="${v}" aria-pressed="${cats.has(v)}">${n}</button>`).join('')}</div></div>
+    <div class="myrow">${F('my_time','Время',x.time,'40 мин')}${F('my_serves','Порций',x.serves,'2','number')}</div>
+    <div class="myrow">${F('my_k','Ккал на порцию',x.k,'600','number')}${F('my_p','Белок, г',x.p,'35','number')}</div>
+    ${F('my_method','Способ',x.method,'Сковорода, духовка…')}
+    ${T('my_ing','Ингредиенты: каждый с новой строки',x.ing,'Куриное бедро 500 г\nРис 200 г\nЛук 1 шт\nСоль по вкусу',6)}
+    ${T('my_steps','Шаги: каждый с новой строки',x.steps,'Можно делить на этапы строкой с двоеточием:\nСоус:\nСмешать соевый соус и мёд.\nКурица:\nОбжарить курицу 7 минут…',7)}
+    ${T('my_prep','Что можно сделать заранее (необязательно)',x.prep,'Замариновать курицу накануне…',2)}
+    ${F('my_link','Ссылка на видео или источник (необязательно)',x.link,'https://…')}
+    <div class="myf"><span>Фото (необязательно)</span><div class="myimg"><div id="my_prev">${img?`<img src="${img}" alt="">`:''}</div><label class="btn">${img?'Заменить фото':'Выбрать фото'}<input id="my_file" type="file" accept="image/*" hidden></label>${img?'<button type="button" class="btn" id="my_noimg">Убрать</button>':''}</div></div>
+    <div id="my_err" class="hint" style="color:#c0392b"></div>
+    <div class="btns"><button class="btn primary" id="my_save">${mid?'Сохранить':'Добавить рецепт'}</button></div>`);
+  bg.querySelector('#my_cats').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on)});
+  bg.querySelector('#my_file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{img=await shrinkImg(f);bg.querySelector('#my_prev').innerHTML=`<img src="${img}" alt="">`}catch(err){toast('Не получилось открыть фото')}});
+  const ni=bg.querySelector('#my_noimg');if(ni)ni.addEventListener('click',()=>{img='';bg.querySelector('#my_prev').innerHTML=''});
+  bg.querySelector('#my_save').addEventListener('click',()=>{
+    const v=id=>bg.querySelector('#'+id).value.trim();
+    const ru=v('my_ru');if(!ru){bg.querySelector('#my_err').textContent='Напиши название';return}
+    const c=[...bg.querySelectorAll('#my_cats button[aria-pressed="true"]')].map(b=>b.dataset.v).join('')||'ld';
+    const id=mid||Date.now().toString(36);
+    const o={id,ru,cats:c,time:v('my_time'),serves:Math.max(1,+v('my_serves')||1),k:Math.round(+v('my_k')||0),p:Math.round(+v('my_p')||0),method:v('my_method'),ing:v('my_ing'),steps:v('my_steps'),prep:v('my_prep'),link:v('my_link')};
+    const i=MY.findIndex(y=>y.id===id);if(i>=0)MY[i]=o;else MY.unshift(o);
+    if(img)MYIMG[id]=img;else delete MYIMG[id];
+    try{localStorage.setItem(KEY_MYIMG,JSON.stringify(MYIMG))}catch(e){toast('Фото слишком большое, сохранил без него');delete MYIMG[id]}
+    saveMy();applyMy();closeSheet();
+    const key='e-my-'+id;EOPEN.add(key);S.rf='my';S.rq='';show('recipes');renderRecipes();
+    setTimeout(()=>{const el=document.querySelector(`#rgrid .eve[data-key="${CSS.escape(key)}"]`);if(el)el.scrollIntoView({block:'start'})},40);
+    toast(mid?'Сохранил':'Рецепт добавлен');
+  });
+}
+function delMy(mid,btn){
+  if(btn.dataset.arm!=='1'){btn.dataset.arm='1';btn.textContent='Точно удалить? Нажми ещё раз';setTimeout(()=>{btn.dataset.arm='';btn.textContent='Удалить'},3000);return}
+  MY=MY.filter(y=>y.id!==mid);delete MYIMG[mid];try{localStorage.setItem(KEY_MYIMG,JSON.stringify(MYIMG))}catch(e){}
+  const key='e-my-'+mid;S.plan.forEach(d=>Object.keys(d).forEach(sl=>{d[sl]=(d[sl]||[]).filter(([k])=>k!==key)}));
+  saveMy();save();applyMy();renderAll();toast('Удалил');
+}
+applyMy();
 const h=location.hash.slice(1); if(TABS.includes(h)||h==='evening'||h==='ideas')S.tab=h;
 renderAll();
 </script>
